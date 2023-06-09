@@ -1,0 +1,7 @@
+resource_group_name  = "<resource group>"
+storage_account_name = "<storage account>"
+container_name       = "<storage account container name>"
+key                  = "<key>"
+
+# Acceess key of the storage account in imx-dev-sub subscription  
+access_key = "<access key>" 
