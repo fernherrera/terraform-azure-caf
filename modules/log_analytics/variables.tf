@@ -63,3 +63,8 @@ variable "reservation_capacity_in_gb_per_day" {
 variable "solutions_maps" {
   default = {}
 }
+
+variable "diagnostic_settings" {
+  description = "(Optional) A diagnostic settings block."
+  default     = {}
+}

@@ -5,16 +5,14 @@ module "mssql_databases" {
   name = each.value.name
   tags = merge(lookup(each.value, "tags", {}), var.tags, local.global_settings.tags, )
 
-  cloud               = local.cloud
-  managed_identities  = local.combined_objects.managed_identities
-  settings            = each.value
-  server_id           = can(each.value.server_id) ? each.value.server_id : module.mssql_servers[each.value.mssql_server_key].id
-  server_name         = can(each.value.server_name) ? each.value.server_name : module.mssql_servers[each.value.mssql_server_key].name
-  elastic_pool_id     = can(each.value.elastic_pool_id) || can(each.value.elastic_pool_key) == false ? try(each.value.elastic_pool_id, null) : null #try(module.mssql_elastic_pools[each.value.elastic_pool_key].id, null)
-  storage_accounts    = module.storage_accounts
-  diagnostic_profiles = try(each.value.diagnostic_profiles, {})
-  diagnostics         = local.combined_diagnostics
-  location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
+  cloud              = local.cloud
+  managed_identities = local.combined_objects.managed_identities
+  settings           = each.value
+  server_id          = can(each.value.server_id) ? each.value.server_id : module.mssql_servers[each.value.mssql_server_key].id
+  server_name        = can(each.value.server_name) ? each.value.server_name : module.mssql_servers[each.value.mssql_server_key].name
+  elastic_pool_id    = can(each.value.elastic_pool_id) || can(each.value.elastic_pool_key) == false ? try(each.value.elastic_pool_id, null) : null #try(module.mssql_elastic_pools[each.value.elastic_pool_key].id, null)
+  storage_accounts   = module.storage_accounts
+  location           = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
 }
 
 output "mssql_databases" {

@@ -7,6 +7,7 @@ module "log_analytics" {
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
   tags                = merge({ "Name" = format("%s", each.value.name) }, lookup(each.value, "tags", {}), try(var.tags, {}), local.global_settings.tags, )
 
+  diagnostic_settings                = try(each.value.diagnostic_settings, {})
   daily_quota_gb                     = try(each.value.daily_quota_gb, null)
   internet_ingestion_enabled         = try(each.value.internet_ingestion_enabled, null)
   internet_query_enabled             = try(each.value.internet_query_enabled, null)
@@ -22,13 +23,12 @@ output "log_analytics" {
 
 
 module "log_analytics_diagnostics" {
-  source   = "./modules/diagnostics"
+  source   = "./modules/monitor/diagnostic_settings"
   for_each = var.shared_services.log_analytics
 
-  resource_id       = module.log_analytics[each.key].id
-  resource_location = module.log_analytics[each.key].location
-  diagnostics       = try(each.value.diagnostics, {})
-  profiles          = try(each.value.diagnostic_profiles, {})
+  name                       = "diag-settings"
+  target_resource_id         = module.log_analytics[each.key].id
+  diagnostics_definition_key = "log_analytics"
 }
 
 # module "log_analytics_storage_insights" {

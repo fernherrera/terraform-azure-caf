@@ -64,14 +64,6 @@ variable "data_sources" {
   default     = {}
 }
 
-variable "enable" {
-  description = "Map of services defined in the configuration file you want to disable during a deployment."
-  default = {
-    # bastion_hosts    = true
-    # virtual_machines = true
-  }
-}
-
 variable "environment" {
   description = "Name of the LZ environment."
   type        = string
@@ -104,6 +96,12 @@ variable "compute" {
   default     = {}
 }
 
+## Containers
+variable "containers" {
+  description = "Configuration object - Container resources"
+  default     = {}
+}
+
 ## Databases variables
 variable "database" {
   description = "Configuration object - databases resources"
@@ -113,6 +111,12 @@ variable "database" {
 ## Data Factory
 variable "data_factory" {
   description = "Configuration object - Data Factory resources."
+  default     = {}
+}
+
+## Messaging
+variable "messaging" {
+  description = "Configuration object - messaging resources"
   default     = {}
 }
 
@@ -155,57 +159,5 @@ variable "storage" {
 ## App services, App service plans, and function apps
 variable "web" {
   description = "Configuration object - Web Applications"
-  default     = {}
-}
-
-
-
-
-
-
-# Diagnostics settings
-variable "diagnostics" {
-  description = "Configuration object - Diagnostics object."
-  default     = {}
-}
-
-variable "diagnostics_definition" {
-  description = "Configuration object - Shared diadgnostics settings that can be used by the services to enable diagnostics."
-  default     = null
-}
-
-variable "diagnostics_destinations" {
-  description = "Configuration object - Describes the destinations for the diagnostics."
-  default     = null
-}
-
-variable "diagnostic_storage_accounts" {
-  description = "Configuration object - Storage account for diagnostics resources"
-  default     = {}
-}
-
-# Event hubs
-variable "event_hub_namespaces" {
-  description = "Configuration object - Event Hub Namespaces."
-  default     = {}
-}
-
-variable "event_hubs" {
-  description = "Configuration object - Event Hub resources"
-  default     = {}
-}
-
-variable "event_hub_auth_rules" {
-  description = "Configuration object - Event Hub authentication rules"
-  default     = {}
-}
-
-variable "event_hub_namespace_auth_rules" {
-  description = "Configuration object - Event Hub namespaces authentication rules"
-  default     = {}
-}
-
-variable "event_hub_consumer_groups" {
-  description = "Configuration object - Event Hub consumer group rules"
   default     = {}
 }

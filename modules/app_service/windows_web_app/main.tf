@@ -10,7 +10,7 @@ locals {
     {
       "APPINSIGHTS_INSTRUMENTATIONKEY"             = var.application_insight.instrumentation_key,
       "APPLICATIONINSIGHTS_CONNECTION_STRING"      = var.application_insight.connection_string,
-      "ApplicationInsightsAgent_EXTENSION_VERSION" = "~2",
+      "ApplicationInsightsAgent_EXTENSION_VERSION" = "~3",
       "WEBSITE_LOAD_CERTIFICATES"                  = "*"
     }
   )

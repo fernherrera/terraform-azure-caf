@@ -27,11 +27,3 @@ variable "sqlcmd_dbname" {
 variable "managed_identities" {
   default = null
 }
-
-variable "diagnostic_profiles" {
-  default = {}
-}
-
-variable "diagnostics" {
-  default = null
-}

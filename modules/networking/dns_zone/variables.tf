@@ -1,6 +1,5 @@
-variable "create_resource_group" {
-  description = "Whether to create resource group and use it for all networking resources"
-  default     = false
+variable "name" {
+  description = "(Required) The name of the DNS Zone. Must be a valid domain name."
 }
 
 variable "resource_group_name" {
@@ -10,10 +9,6 @@ variable "resource_group_name" {
 variable "location" {
   description = "The location/region to keep all your network resources. To get the list of all locations with table format from azure cli, run 'az account list-locations -o table'"
   default     = ""
-}
-
-variable "name" {
-  description = "(Required) The name of the DNS Zone. Must be a valid domain name."
 }
 
 variable "tags" {

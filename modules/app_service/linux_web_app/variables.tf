@@ -60,6 +60,11 @@ variable "connection_strings" {
   description = "(Optional) One or more connection_string blocks."
 }
 
+variable "diagnostic_settings" {
+  description = "(Optional) A diagnostic settings block."
+  default     = {}
+}
+
 variable "enabled" {
   description = "(Optional) Should the Linux Web App be enabled? Defaults to true."
   type        = bool

@@ -1,3 +1,27 @@
+#----------------------------------------------------------
+# Locals declarations
+#----------------------------------------------------------
+locals {
+  # Default windows web app settings
+  default_windows_web_apps_settings = {
+    https_only = true
+    site_config = {
+      application_stack = {
+        current_stack  = "dotnetcore"
+        dotnet_version = "v6.0"
+      }
+      always_on             = true
+      ftps_state            = "Disabled"
+      http2_enabled         = true
+      managed_pipeline_mode = "Integrated"
+      minimum_tls_version   = "1.2"
+    }
+  }
+}
+
+#----------------------------------------------------------
+# Windows App Services
+#----------------------------------------------------------
 module "windows_web_apps" {
   source = "./modules/app_service/windows_web_app"
   #   depends_on = [module.networking]
@@ -14,6 +38,7 @@ module "windows_web_apps" {
   client_certificate_enabled          = try(each.value.client_certificate_enabled, null)
   client_certificate_mode             = try(each.value.client_certificate_mode, null)
   connection_strings                  = try(each.value.connection_strings, {})
+  diagnostic_settings                 = try(each.value.diagnostic_settings, {})
   enabled                             = try(each.value.enabled, null)
   https_only                          = try(each.value.https_only, null)
   identity                            = try(each.value.identity, null)

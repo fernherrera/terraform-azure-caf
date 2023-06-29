@@ -53,3 +53,8 @@ variable "zone_balancing_enabled" {
   description = "(Optional) Should the Service Plan balance across Availability Zones in the region. Defaults to false."
   default     = false
 }
+
+variable "diagnostic_settings" {
+  description = "(Optional) A diagnostic settings block."
+  default     = {}
+}

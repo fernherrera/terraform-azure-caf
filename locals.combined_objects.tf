@@ -15,7 +15,7 @@ locals {
     managed_identities                = {}
     mssql_managed_instances           = {}
     mssql_managed_instances_secondary = {}
-    private_dns                       = try(data.azurerm_private_dns_zone.dns, {})
+    private_dns                       = merge(try(module.private_dns, {}), try(data.azurerm_private_dns_zone.dns, {}))
     resource_groups                   = merge(try(module.resource_groups, {}), {})
     storage_accounts                  = merge(try(module.storage_accounts, {}), try(data.azurerm_storage_account.stg, {}))
   }

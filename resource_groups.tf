@@ -1,5 +1,5 @@
 module "resource_groups" {
-  source   = "./modules/resources/resource_group"
+  source   = "./modules/management/resource_group"
   for_each = local.resource_groups
 
   create_resource_group = try(each.value.create_resource_group, false)

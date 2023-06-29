@@ -40,8 +40,9 @@ variable "vnets" {
   default = {}
 }
 
-variable "diagnostics" {
-  default = {}
+variable "diagnostic_settings" {
+  description = "(Optional) A diagnostic settings block."
+  default     = {}
 }
 
 variable "resource_groups" {

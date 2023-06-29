@@ -1,6 +1,6 @@
 module "mysql_servers" {
   source   = "./modules/databases/mysql_flexible_server"
-  for_each = local.database.mysql_servers
+  for_each = local.database.mysql_flexible_servers
 
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)

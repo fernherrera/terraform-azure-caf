@@ -139,12 +139,12 @@ data "azurerm_virtual_network" "vnet01" {
 }
 
 resource "azurerm_subnet" "snet-ep" {
-  count                                          = var.enable_private_endpoint ? 1 : 0
-  name                                           = "snet-endpoint-shared-${local.location}"
-  resource_group_name                            = local.resource_group_name
-  virtual_network_name                           = data.azurerm_virtual_network.vnet01.0.name
-  address_prefixes                               = var.private_subnet_address_prefix
-  enforce_private_link_endpoint_network_policies = true
+  count                                     = var.enable_private_endpoint ? 1 : 0
+  name                                      = "snet-endpoint-shared-${local.location}"
+  resource_group_name                       = local.resource_group_name
+  virtual_network_name                      = data.azurerm_virtual_network.vnet01.0.name
+  address_prefixes                          = var.private_subnet_address_prefix
+  private_endpoint_network_policies_enabled = true
 }
 
 resource "azurerm_private_endpoint" "pep1" {

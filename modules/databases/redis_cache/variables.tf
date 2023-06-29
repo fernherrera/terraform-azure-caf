@@ -19,14 +19,14 @@ variable "tags" {
   default     = {}
 }
 
-variable "log_analytics_workspace_name" {
-  description = "The name of log analytics workspace name"
-  default     = null
-}
-
 variable "name" {
   description = "The name of the Redis instance"
   default     = ""
+}
+
+variable "log_analytics_workspace_name" {
+  description = "The name of log analytics workspace name"
+  default     = null
 }
 
 variable "capacity" {

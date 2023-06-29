@@ -1,3 +1,22 @@
+#----------------------------------------------------------
+# Locals declarations
+#----------------------------------------------------------
+locals {
+  # Default linux web app settings
+  default_linux_web_apps_settings = {
+    site_config = {
+      application_stack = {
+        php_version = "8.1"
+      }
+      ftps_state = "Disabled"
+    }
+  }
+}
+
+
+#----------------------------------------------------------
+# Linux App Services
+#----------------------------------------------------------
 module "linux_web_apps" {
   source = "./modules/app_service/linux_web_app"
   #   depends_on = [module.networking]
@@ -15,6 +34,7 @@ module "linux_web_apps" {
   client_certificate_mode             = try(each.value.client_certificate_mode, null)
   client_certificate_exclusion_paths  = try(each.value.client_certificate_exclusion_paths, null)
   connection_strings                  = try(each.value.connection_strings, {})
+  diagnostic_settings                 = try(each.value.diagnostic_settings, {})
   enabled                             = try(each.value.enabled, null)
   https_only                          = try(each.value.https_only, null)
   identity                            = try(each.value.identity, null)

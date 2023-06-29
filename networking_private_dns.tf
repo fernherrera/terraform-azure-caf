@@ -51,3 +51,20 @@ locals {
 
   private_dns_zones_combined = merge(try(var.networking.private_dns_zones, {}), try(local.private_dns_zones, {}))
 }
+
+
+#----------------------------------------------------------
+# Private DNS Zones
+#----------------------------------------------------------
+module "private_dns" {
+  source   = "./modules/networking/private_dns"
+  for_each = local.private_dns_zones_combined
+
+  name                = each.value.name
+  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  location            = try(each.value.location, module.resource_groups[each.value.resource_group_key].location, null)
+  tags                = merge(lookup(each.value, "tags", {}), try(var.tags, {}), )
+  records             = try(each.value.records, {})
+  vnet_links          = try(each.value.vnet_links, {})
+  vnets               = try(module.virtual_networks, {})
+}

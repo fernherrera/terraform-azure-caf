@@ -7,15 +7,15 @@ module "keyvaults" {
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
   tags                = merge(lookup(each.value, "tags", {}), var.tags, local.global_settings.tags, )
 
-  client_config      = local.client_config
-  tenant_id          = local.client_config.tenant_id
-  settings           = each.value.settings
-  vnets              = try(each.value.vnets, {})
-  diagnostics        = try(each.value.diagnostics, {})
-  resource_groups    = try(each.value.resource_groups, {})
-  private_dns        = try(each.value.private_dns, {})
-  azuread_groups     = try(each.value.azuread_groups, {})
-  managed_identities = try(each.value.managed_identities, {})
+  client_config       = local.client_config
+  tenant_id           = local.client_config.tenant_id
+  settings            = each.value.settings
+  vnets               = try(each.value.vnets, {})
+  diagnostic_settings = try(each.value.diagnostic_settings, {})
+  resource_groups     = try(each.value.resource_groups, {})
+  private_dns         = try(each.value.private_dns, {})
+  azuread_groups      = try(each.value.azuread_groups, {})
+  managed_identities  = try(each.value.managed_identities, {})
 }
 
 # Keyvault access policies

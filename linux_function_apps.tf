@@ -2,8 +2,8 @@
 # Locals declarations
 #----------------------------------------------------------
 locals {
-  # Default windows function app settings
-  default_windows_function_apps_settings = {
+  # Default linux function app settings
+  default_linux_function_apps_settings = {
     site_config = {
       always_on = false
       application_stack = {
@@ -15,12 +15,12 @@ locals {
 }
 
 #----------------------------------------------------------
-# Windows App Functions
+# Linux App Functions
 #----------------------------------------------------------
-module "windows_function_apps" {
-  source = "./modules/app_service/windows_function_app"
+module "linux_function_apps" {
+  source = "./modules/app_service/linux_function_app"
   #   depends_on = [module.networking]
-  for_each = local.web.windows_function_apps
+  for_each = local.web.linux_function_apps
 
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
@@ -42,7 +42,7 @@ module "windows_function_apps" {
   https_only                          = try(each.value.https_only, null)
   identity                            = try(each.value.identity, null)
   key_vault_reference_identity_id     = try(each.value.key_vault_reference_identity_id, null)
-  settings                            = merge(try(local.default_windows_function_apps_settings, {}), try(each.value.settings, {}))
+  settings                            = merge(try(local.default_linux_function_apps_settings, {}), try(each.value.settings, {}))
   storage_account_access_key          = can(each.value.storage_account_access_key) ? each.value.storage_account_access_key : module.storage_accounts[each.value.storage_account_key].primary_access_key
   storage_account_name                = can(each.value.storage_account_name) ? each.value.storage_account_name : module.storage_accounts[each.value.storage_account_key].name
   storage_uses_managed_identity       = try(each.value.storage_uses_managed_identity, null)
@@ -52,7 +52,7 @@ module "windows_function_apps" {
   application_insight                 = try(each.value.application_insight_key, null) == null ? null : module.application_insights[each.value.application_insight_key]
 }
 
-output "windows_function_apps" {
-  value     = module.windows_function_apps
+output "linux_function_apps" {
+  value     = module.linux_function_apps
   sensitive = true
 }

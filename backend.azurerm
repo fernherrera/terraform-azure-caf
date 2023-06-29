@@ -1,0 +1,8 @@
+#--------------------------------------
+# Backend Azure storage account
+#--------------------------------------
+
+terraform {
+  backend "azurerm" {
+  }
+}

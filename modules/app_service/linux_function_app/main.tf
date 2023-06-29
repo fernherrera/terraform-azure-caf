@@ -210,9 +210,21 @@ resource "azurerm_linux_function_app" "function_app" {
         for_each = lookup(var.settings.site_config, "application_stack", {}) != {} ? [1] : []
 
         content {
-          docker                      = lookup(var.settings.site_config.application_stack, "docker", null)
+
+          dynamic "docker" {
+            for_each = try(var.settings.site_config.application_stack.docker, {})
+
+            content {
+              image_name        = docker.image_name
+              image_tag         = docker.image_tag
+              registry_url      = docker.registry_url
+              registry_username = try(docker.registry_username, null)
+              registry_password = try(docker.registry_password, null)
+            }
+          }
+
           dotnet_version              = lookup(var.settings.site_config.application_stack, "dotnet_version", null)
-          use_dotnet_isolated_runtime = lookup(var.settings.site_config.application_stack, " use_dotnet_isolated_runtime", null)
+          use_dotnet_isolated_runtime = lookup(var.settings.site_config.application_stack, "use_dotnet_isolated_runtime", null)
           java_version                = lookup(var.settings.site_config.application_stack, "java_version", null)
           node_version                = lookup(var.settings.site_config.application_stack, "node_version", null)
           python_version              = lookup(var.settings.site_config.application_stack, "python_version", null)

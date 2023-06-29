@@ -59,6 +59,11 @@ variable "content_share_force_disabled" {
   default     = false
 }
 
+variable "diagnostic_settings" {
+  description = "(Optional) A diagnostic settings block."
+  default     = {}
+}
+
 variable "daily_memory_time_quota" {
   description = "(Optional) The amount of memory in gigabyte-seconds that your application is allowed to consume per day. Setting this value only affects function apps under the consumption plan. Defaults to 0."
   default     = 0

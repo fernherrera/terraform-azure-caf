@@ -77,15 +77,21 @@ locals {
     virtual_machines = try(var.compute.virtual_machines, {})
   }
 
+  containers = {
+    container_apps = try(var.containers.container_apps, {})
+  }
+
   database = {
-    app_config            = try(var.database.app_config, {})
-    azurerm_redis_caches  = try(var.database.azurerm_redis_caches, {})
-    mssql_databases       = try(var.database.mssql_databases, {})
-    mssql_elastic_pools   = try(var.database.mssql_elastic_pools, {})
-    mssql_failover_groups = try(var.database.mssql_failover_groups, {})
-    mssql_servers         = try(var.database.mssql_servers, {})
-    mysql_databases       = try(var.database.mysql_databases, {})
-    mysql_servers         = try(var.database.mysql_servers, {})
+    app_config               = try(var.database.app_config, {})
+    mssql_databases          = try(var.database.mssql_databases, {})
+    mssql_elastic_pools      = try(var.database.mssql_elastic_pools, {})
+    mssql_failover_groups    = try(var.database.mssql_failover_groups, {})
+    mssql_managed_databases  = try(var.database.mssql_managed_databases, {})
+    mssql_managed_instances  = try(var.database.mssql_managed_instances, {})
+    mssql_servers            = try(var.database.mssql_servers, {})
+    mysql_flexible_databases = try(var.database.mysql_databases, {})
+    mysql_flexible_servers   = try(var.database.mysql_servers, {})
+    redis_caches             = try(var.database.redis_caches, {})
   }
 
   data_factory = {
@@ -123,15 +129,27 @@ locals {
     storage_accounts = try(var.data_sources.storage_accounts, {})
   }
 
+  messaging = {
+    event_hub_auth_rules           = try(var.messaging.event_hub_auth_rules, {})
+    event_hub_consumer_groups      = try(var.messaging.event_hub_consumer_groups, {})
+    event_hub_namespace_auth_rules = try(var.messaging.event_hub_namespace_auth_rules, {})
+    event_hub_namespaces           = try(var.messaging.event_hub_namespaces, {})
+    event_hubs                     = try(var.messaging.event_hubs, {})
+  }
+
   networking = {
     cdn_frontdoors                       = try(var.networking.cdn_frontdoors, {})
     dns_zones                            = try(var.networking.dns_zones, {})
+    express_route_circuits               = try(var.networking.express_route_circuits, {})
     frontdoors                           = try(var.networking.frontdoors, {})
     frontdoor_custom_https_configuration = try(var.networking.frontdoor_custom_https_configuration, {})
     frontdoor_rules_engine               = try(var.networking.frontdoor_rules_engine, {})
     frontdoor_waf_policies               = try(var.networking.frontdoor_waf_policies, {})
+    ip_groups                            = try(var.networking.ip_groups, {})
     private_dns                          = try(var.networking.private_dns, {})
+    private_dns_resolvers                = try(var.networking.private_dns_resolvers, {})
     private_dns_vnet_links               = try(var.networking.private_dns_vnet_links, {})
+    virtual_networks                     = try(var.networking.virtual_networks, {})
     virtual_subnets                      = try(var.networking.virtual_subnets, {})
   }
 
@@ -146,6 +164,7 @@ locals {
     keyvaults                             = try(var.security.keyvaults, {})
     keyvault_access_policies              = try(var.security.keyvault_access_policies, {})
     keyvault_access_policies_azuread_apps = try(var.security.keyvault_access_policies_azuread_apps, {})
+    managed_identities                    = try(var.security.managed_identities, {})
   }
 
   shared_services = {
@@ -168,7 +187,7 @@ locals {
     app_insights          = try(var.web.app_insights, {})
     app_services          = try(var.web.app_services, {})
     app_service_plans     = try(var.web.app_service_plans, {})
-    function_apps         = try(var.web.function_apps, {})
+    linux_function_apps   = try(var.web.linux_function_apps, {})
     linux_web_apps        = try(var.web.linux_web_apps, {})
     static_sites          = try(var.web.static_sites, {})
     windows_web_apps      = try(var.web.windows_web_apps, {})

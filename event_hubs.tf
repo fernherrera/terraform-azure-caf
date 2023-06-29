@@ -6,7 +6,7 @@ locals {
     for private_endpoint in
     flatten(
       [
-        for eh_ns_key, eh_ns in var.event_hub_namespaces : [
+        for eh_ns_key, eh_ns in local.messaging.event_hub_namespaces : [
           for pe_key, pe in try(eh_ns.private_endpoints, {}) : {
             eh_ns_key           = eh_ns_key
             pe_key              = pe_key
@@ -30,8 +30,8 @@ locals {
 # Event Hub Namespaces
 #--------------------------------------
 module "event_hub_namespaces" {
-  source   = "./modules/event_hubs/namespaces"
-  for_each = var.event_hub_namespaces
+  source   = "./modules/messaging/event_hubs/namespaces"
+  for_each = local.messaging.event_hub_namespaces
 
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
@@ -62,9 +62,10 @@ output "event_hub_namespaces" {
 # Event Hub Namespace Authorization Rules
 #--------------------------------------
 module "event_hub_namespace_auth_rules" {
-  source     = "./modules/event_hubs/namespaces/auth_rules"
+  source   = "./modules/messaging/event_hubs/namespaces/auth_rules"
+  for_each = local.messaging.event_hub_namespace_auth_rules
+
   depends_on = [module.event_hub_namespaces]
-  for_each   = try(var.event_hub_namespace_auth_rules, {})
 
   name                = each.value.name
   namespace_name      = module.event_hub_namespaces[each.value.event_hub_namespace_key].name
@@ -81,15 +82,14 @@ output "event_hub_namespace_auth_rules" {
 #--------------------------------------
 # Event Hub Namespaces Diagnostic settings
 #--------------------------------------
-# module "event_hub_namespaces_diagnostics" {
-#   source   = "./modules/diagnostics"
-#   for_each = var.event_hub_namespaces
+module "event_hub_namespaces_diagnostics" {
+  source   = "./modules/monitor/diagnostic_settings"
+  for_each = local.messaging.event_hub_namespaces
 
-#   resource_id       = module.event_hub_namespaces[each.key].id
-#   resource_location = module.event_hub_namespaces[each.key].location
-#   diagnostics       = local.combined_diagnostics
-#   profiles          = try(each.value.diagnostic_profiles, {})
-# }
+  name                       = "diag-settings"
+  target_resource_id         = module.event_hub_namespaces[each.key].id
+  diagnostics_definition_key = "event_hub_namespace"
+}
 
 #--------------------------------------
 # Event Hub Namespaces Private Endpoints
@@ -99,9 +99,10 @@ output "event_hub_namespace_auth_rules" {
 # private endpoint to be done at the root module to prevent circular references
 #
 module "event_hub_namespaces_private_endpoints" {
+  source   = "./modules/networking/private_endpoint"
+  for_each = local.event_hub_namespaces_private_endpoints
+
   depends_on = [module.event_hub_namespaces]
-  source     = "./modules/networking/private_endpoint"
-  for_each   = local.event_hub_namespaces_private_endpoints
 
   name                          = each.value.settings.name
   location                      = each.value.location
@@ -118,9 +119,10 @@ module "event_hub_namespaces_private_endpoints" {
 # Event Hubs
 #--------------------------------------
 module "event_hubs" {
-  source     = "./modules/event_hubs/hubs"
+  source   = "./modules/messaging/event_hubs/hubs"
+  for_each = local.messaging.event_hubs
+
   depends_on = [module.event_hub_namespaces]
-  for_each   = try(var.event_hubs, {})
 
   name                = each.value.name
   namespace_name      = module.event_hub_namespaces[each.value.event_hub_namespace_key].name
@@ -141,13 +143,13 @@ output "event_hubs" {
 # Event Hub Authorization Rules
 #--------------------------------------
 module "event_hub_auth_rules" {
-  source = "./modules/event_hubs/hubs/auth_rules"
+  source   = "./modules/messaging/event_hubs/hubs/auth_rules"
+  for_each = local.messaging.event_hub_auth_rules
+
   depends_on = [
     module.event_hub_namespaces,
     module.event_hubs
   ]
-
-  for_each = try(var.event_hub_auth_rules, {})
 
   name                = each.value.name
   namespace_name      = module.event_hub_namespaces[each.value.event_hub_namespace_key].name
@@ -166,13 +168,13 @@ output "event_hub_auth_rules" {
 # Event Hub Consumer Groups
 #--------------------------------------
 module "event_hub_consumer_groups" {
-  source = "./modules/event_hubs/consumer_groups"
+  source   = "./modules/messaging/event_hubs/consumer_groups"
+  for_each = local.messaging.event_hub_consumer_groups
+
   depends_on = [
     module.event_hub_namespaces,
     module.event_hubs
   ]
-
-  for_each = try(var.event_hub_consumer_groups, {})
 
   name                = each.value.name
   namespace_name      = module.event_hub_namespaces[each.value.event_hub_namespace_key].name

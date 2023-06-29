@@ -14,6 +14,7 @@ module "app_service_plans" {
   worker_count                 = try(each.value.worker_count, null)
   per_site_scaling_enabled     = try(each.value.per_site_scaling_enabled, false)
   zone_balancing_enabled       = try(each.value.zone_balancing_enabled, false)
+  diagnostic_settings          = try(each.value.diagnostic_settings, {})
 }
 
 output "app_service_plans" {

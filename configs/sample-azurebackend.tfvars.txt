@@ -3,5 +3,5 @@ storage_account_name = "<storage account>"
 container_name       = "<storage account container name>"
 key                  = "<key>"
 
-# Acceess key of the storage account in imx-dev-sub subscription  
+# Access key of the storage account in imx-dev-sub subscription  
 access_key = "<access key>" 
