@@ -1,28 +1,11 @@
-#-------------------------------
-# Local Declarations
-#-------------------------------
-
-locals {
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  tags                = merge(try(var.tags, {}), )
-}
-
-#---------------------------------------------------------
-# Resource Group Creation or selection - Default is "true"
 #----------------------------------------------------------
-data "azurerm_resource_group" "rg" {
-  name = var.resource_group_name
-}
-
-#---------------------------------------------------------
-# App Service Plan Creation 
+# App Service Plan 
 #----------------------------------------------------------
 resource "azurerm_service_plan" "asp" {
   name                = var.name
-  resource_group_name = local.resource_group_name
-  location            = local.location
-  tags                = local.tags
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  tags                = var.tags
 
   os_type                      = var.os_type
   sku_name                     = var.sku_name

@@ -2,63 +2,58 @@
 # Local Declarations
 #-------------------------------
 locals {
-  resource_group_name = element(coalescelist(data.azurerm_resource_group.rgrp.*.name, azurerm_resource_group.rg.*.name, [""]), 0)
-  location            = element(coalescelist(data.azurerm_resource_group.rgrp.*.location, azurerm_resource_group.rg.*.location, [""]), 0)
-  tags                = merge(try(var.tags, {}), )
-}
-
-#----------------------------------------------------------
-# Resource Group Creation or selection - Default is "true"
-#----------------------------------------------------------
-data "azurerm_resource_group" "rgrp" {
-  count = var.create_resource_group == false ? 1 : 0
-  name  = var.resource_group_name
-}
-
-resource "azurerm_resource_group" "rg" {
-  count    = var.create_resource_group ? 1 : 0
-  name     = lower(var.resource_group_name)
-  location = var.location
-  tags     = local.tags
+  id        = element(coalescelist(data.azurerm_key_vault.keyvault_e.*.id, azurerm_key_vault.keyvault.*.id, [""]), 0)
+  name      = element(coalescelist(data.azurerm_key_vault.keyvault_e.*.name, azurerm_key_vault.keyvault.*.name, [""]), 0)
+  vault_uri = element(coalescelist(data.azurerm_key_vault.keyvault_e.*.vault_uri, azurerm_key_vault.keyvault.*.vault_uri, [""]), 0)
 }
 
 #----------------------------------------------------------
 # Key Vault
 #----------------------------------------------------------
-resource "azurerm_key_vault" "keyvault" {
+data "azurerm_key_vault" "keyvault_e" {
+  count = var.existing == true ? 1 : 0
+
   name                = var.name
-  location            = local.location
-  resource_group_name = local.resource_group_name
-  tags                = local.tags
+  resource_group_name = var.resource_group_name
+}
+
+resource "azurerm_key_vault" "keyvault" {
+  count = var.existing == false ? 1 : 0
+
+  name                = var.name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  tags                = var.tags
 
   tenant_id                       = var.tenant_id
-  sku_name                        = try(var.settings.sku_name, "standard")
-  enabled_for_deployment          = try(var.settings.enabled_for_deployment, false)
-  enabled_for_disk_encryption     = try(var.settings.enabled_for_disk_encryption, false)
-  enabled_for_template_deployment = try(var.settings.enabled_for_template_deployment, false)
-  purge_protection_enabled        = try(var.settings.purge_protection_enabled, false)
-  soft_delete_retention_days      = try(var.settings.soft_delete_retention_days, 7)
-  enable_rbac_authorization       = try(var.settings.enable_rbac_authorization, false)
+  sku_name                        = var.sku_name
+  enabled_for_deployment          = try(var.enabled_for_deployment, false)
+  enabled_for_disk_encryption     = try(var.enabled_for_disk_encryption, false)
+  enabled_for_template_deployment = try(var.enabled_for_template_deployment, false)
+  enable_rbac_authorization       = try(var.enable_rbac_authorization, false)
+  purge_protection_enabled        = try(var.purge_protection_enabled, false)
+  public_network_access_enabled   = try(var.public_network_access_enabled, true)
+  soft_delete_retention_days      = try(var.soft_delete_retention_days, 7)
 
   timeouts {
     delete = "60m"
   }
 
   dynamic "network_acls" {
-    for_each = lookup(var.settings, "network", null) == null ? [] : [1]
+    for_each = try(var.network_acls, null) == null ? [] : [1]
 
     content {
-      bypass         = var.settings.network.bypass
-      default_action = try(var.settings.network.default_action, "Deny")
-      ip_rules       = try(var.settings.network.ip_rules, null)
-      virtual_network_subnet_ids = try(var.settings.network.subnets, null) == null ? null : [
-        for key, value in var.settings.network.subnets : can(value.subnet_id) ? value.subnet_id : var.vnets[value.vnet_key].subnets[value.subnet_key].id
+      bypass         = var.network_acls.bypass
+      default_action = try(var.network_acls.default_action, "Deny")
+      ip_rules       = try(var.network_acls.ip_rules, null)
+      virtual_network_subnet_ids = try(var.network_acls.subnets, null) == null ? null : [
+        for key, value in var.network_acls.subnets : can(value.subnet_id) ? value.subnet_id : var.vnets[value.vnet_key].subnets[value.subnet_key].id
       ]
     }
   }
 
   dynamic "contact" {
-    for_each = lookup(var.settings, "contacts", {})
+    for_each = try(var.contact, {})
 
     content {
       email = contact.value.email

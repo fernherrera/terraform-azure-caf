@@ -1,27 +1,11 @@
-#---------------------------------
-# Local declarations
-#---------------------------------
-locals {
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  tags                = try(var.tags, {})
-}
-
-#---------------------------------------------------------
-# Resource Group
-#----------------------------------------------------------
-data "azurerm_resource_group" "rg" {
-  name = var.resource_group_name
-}
-
 #--------------------------------------
 # Analysis Services Server
 #--------------------------------------
 resource "azurerm_analysis_services_server" "server" {
   name                      = var.name
-  location                  = local.location
-  resource_group_name       = local.resource_group_name
-  tags                      = local.tags
+  location                  = var.location
+  resource_group_name       = var.resource_group_name
+  tags                      = var.tags
   sku                       = var.sku
   admin_users               = try(var.admin_users, [])
   backup_blob_container_uri = try(var.backup_blob_container_uri, null)

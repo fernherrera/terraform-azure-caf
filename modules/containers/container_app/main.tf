@@ -1,26 +1,10 @@
-#---------------------------------
-# Local declarations
-#---------------------------------
-locals {
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  tags                = merge(try(var.tags, {}), )
-}
-
-#----------------------------------------------------------
-# Resource Group
-#----------------------------------------------------------
-data "azurerm_resource_group" "rg" {
-  name = var.resource_group_name
-}
-
 #----------------------------------------------------------
 # Container App 
 #----------------------------------------------------------
 resource "azurerm_container_app" "ca" {
   name                = var.name
-  resource_group_name = local.resource_group_name
-  tags                = local.tags
+  resource_group_name = var.resource_group_name
+  tags                = var.tags
 
   container_app_environment_id = var.container_app_environment_id
   revision_mode                = var.revision_mode
@@ -156,11 +140,11 @@ resource "azurerm_container_app" "ca" {
   }
 
   dynamic "identity" {
-    for_each = length(local.managed_identities) > 0 || local.identity_type == "UserAssigned" ? [local.identity_type] : []
+    for_each = can(var.identity) ? [var.identity] : []
 
     content {
-      type         = local.identity_type
-      identity_ids = lower(local.identity_type) == "userassigned" ? local.managed_identities : null
+      type         = identity.value.type
+      identity_ids = concat(identity.value.managed_identities, [])
     }
   }
 

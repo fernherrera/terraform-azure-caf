@@ -2,6 +2,26 @@
 # Local declarations
 #---------------------------------
 locals {
+  event_hub_namespaces_managed_identities = {
+    for managed_identity in
+    flatten(
+      [
+        for sa_key, sa in local.messaging.event_hub_namespaces : {
+          sa_key = sa_key
+          type   = try(sa.identity.type, "SystemAssigned")
+          managed_identities = concat(
+            try(sa.identity.managed_identity_ids, []),
+            flatten([
+              for managed_identity_key in try(sa.identity.managed_identity_keys, []) : [
+                module.managed_identities[managed_identity_key].id
+              ]
+            ])
+          )
+        } if try(sa.identity, null) != null
+      ]
+    ) : format("%s", managed_identity.sa_key) => managed_identity
+  }
+
   event_hub_namespaces_private_endpoints = {
     for private_endpoint in
     flatten(
@@ -24,6 +44,79 @@ locals {
       ]
     ) : format("%s-%s", private_endpoint.eh_ns_key, private_endpoint.pe_key) => private_endpoint
   }
+
+  event_hub_namespaces_diagnostics_defaults = {
+    name        = "operational_logs_and_metrics"
+    enabled_log = []
+    log = [
+      {
+        name    = "ArchiveLogs"
+        enabled = true
+        retention_policy = {
+          enabled = true
+          days    = 7
+        }
+      },
+      {
+        name    = "OperationalLogs"
+        enabled = true
+        retention_policy = {
+          enabled = true
+          days    = 7
+        }
+      },
+      {
+        name    = "AutoScaleLogs"
+        enabled = true
+        retention_policy = {
+          enabled = true
+          days    = 7
+        }
+      },
+      {
+        name    = "KafkaCoordinatorLogs"
+        enabled = true
+        retention_policy = {
+          enabled = true
+          days    = 7
+        }
+      },
+      {
+        name    = "KafkaUserErrorLogs"
+        enabled = true
+        retention_policy = {
+          enabled = true
+          days    = 7
+        }
+      },
+      {
+        name    = "EventHubVNetConnectionEvent"
+        enabled = true
+        retention_policy = {
+          enabled = true
+          days    = 7
+        }
+      },
+      {
+        name    = "CustomerManagedKeyUserLogs"
+        enabled = true
+        retention_policy = {
+          enabled = true
+          days    = 7
+        }
+      },
+    ]
+    metric = [
+      {
+        name    = "AllMetrics"
+        enabled = true
+        retention_policy = {
+          enabled = true
+          days    = 7
+        }
+      }
+    ]
+  }
 }
 
 #--------------------------------------
@@ -34,15 +127,15 @@ module "event_hub_namespaces" {
   for_each = local.messaging.event_hub_namespaces
 
   name                = each.value.name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
+  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge(lookup(each.value, "tags", {}), local.global_settings.tags, )
+  tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
   sku                           = each.value.sku
   capacity                      = try(each.value.capacity, null)
   auto_inflate_enabled          = try(each.value.auto_inflate_enabled, null)
   dedicated_cluster_id          = try(each.value.dedicated_cluster_id, null)
-  identity                      = try(each.value.identity, {})
+  identity                      = try(local.event_hub_namespaces_managed_identities[each.key], {})
   maximum_throughput_units      = try(each.value.maximum_throughput_units, null)
   zone_redundant                = try(each.value.zone_redundant, null)
   network_rulesets              = try(each.value.network_rulesets, {})
@@ -54,9 +147,6 @@ module "event_hub_namespaces" {
   storage_accounts              = local.combined_objects.storage_accounts
 }
 
-output "event_hub_namespaces" {
-  value = module.event_hub_namespaces
-}
 
 #--------------------------------------
 # Event Hub Namespace Authorization Rules
@@ -69,26 +159,10 @@ module "event_hub_namespace_auth_rules" {
 
   name                = each.value.name
   namespace_name      = module.event_hub_namespaces[each.value.event_hub_namespace_key].name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
+  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   listen              = try(each.value.listen, false)
   send                = try(each.value.send, false)
   manage              = try(each.value.manage, false)
-}
-
-output "event_hub_namespace_auth_rules" {
-  value = module.event_hub_namespace_auth_rules
-}
-
-#--------------------------------------
-# Event Hub Namespaces Diagnostic settings
-#--------------------------------------
-module "event_hub_namespaces_diagnostics" {
-  source   = "./modules/monitor/diagnostic_settings"
-  for_each = local.messaging.event_hub_namespaces
-
-  name                       = "diag-settings"
-  target_resource_id         = module.event_hub_namespaces[each.key].id
-  diagnostics_definition_key = "event_hub_namespace"
 }
 
 #--------------------------------------
@@ -104,7 +178,7 @@ module "event_hub_namespaces_private_endpoints" {
 
   depends_on = [module.event_hub_namespaces]
 
-  name                          = each.value.settings.name
+  name                          = each.value.name
   location                      = each.value.location
   resource_group_name           = each.value.resource_group_name
   tags                          = each.value.tags
@@ -113,6 +187,30 @@ module "event_hub_namespaces_private_endpoints" {
   private_dns_zone_group        = try(each.value.private_dns_zone_group, {})
   custom_network_interface_name = try(each.value.custom_network_interface_name, null)
   ip_configuration              = try(each.value.ip_configuration, [])
+}
+
+#--------------------------------------
+# Event Hub Namespaces Diagnostic settings
+#--------------------------------------
+module "event_hub_namespaces_diagnostics" {
+  source   = "./modules/monitor/diagnostic_settings"
+  for_each = local.messaging.event_hub_namespaces
+
+  target_resource_id = module.event_hub_namespaces[each.key].id
+
+  eventhub_name                  = try(each.value.diagnostic_settings.eventhub_name, null)
+  eventhub_authorization_rule_id = try(each.value.diagnostic_settings.eventhub_authorization_rule_id, null)
+
+  log_analytics_workspace_id     = try(each.value.diagnostic_settings.log_analytics_workspace_id, null)
+  log_analytics_destination_type = try(each.value.diagnostic_settings.log_analytics_destination_type, null)
+
+  partner_solution_id = try(each.value.diagnostic_settings.partner_solution_id, null)
+  storage_account_id  = try(each.value.diagnostic_settings.storage_account_id, null)
+
+  name        = try(each.value.diagnostic_settings.name, local.event_hub_namespaces_diagnostics_defaults.name)
+  enabled_log = try(each.value.diagnostic_settings.enabled_log, local.event_hub_namespaces_diagnostics_defaults.enabled_log, [])
+  log         = try(each.value.diagnostic_settings.log, local.event_hub_namespaces_diagnostics_defaults.log, [])
+  metric      = try(each.value.diagnostic_settings.metric, local.event_hub_namespaces_diagnostics_defaults.metric, [])
 }
 
 #--------------------------------------
@@ -126,17 +224,13 @@ module "event_hubs" {
 
   name                = each.value.name
   namespace_name      = module.event_hub_namespaces[each.value.event_hub_namespace_key].name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
+  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   partition_count     = each.value.partition_count
   message_retention   = each.value.message_retention
   capture_description = try(each.value.capture_description, {})
   status              = try(each.value.status, null)
   auth_rules          = try(each.value.auth_rules, {})
   storage_account_id  = try(module.storage_accounts[each.value.storage_account_key].id, null)
-}
-
-output "event_hubs" {
-  value = module.event_hubs
 }
 
 #--------------------------------------
@@ -154,14 +248,10 @@ module "event_hub_auth_rules" {
   name                = each.value.name
   namespace_name      = module.event_hub_namespaces[each.value.event_hub_namespace_key].name
   eventhub_name       = module.event_hubs[each.value.event_hub_key].name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
+  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   listen              = try(each.value.listen, false)
   send                = try(each.value.send, false)
   manage              = try(each.value.manage, false)
-}
-
-output "event_hub_auth_rules" {
-  value = module.event_hub_auth_rules
 }
 
 #--------------------------------------
@@ -179,6 +269,6 @@ module "event_hub_consumer_groups" {
   name                = each.value.name
   namespace_name      = module.event_hub_namespaces[each.value.event_hub_namespace_key].name
   eventhub_name       = module.event_hubs[each.value.event_hub_name_key].name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
+  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   user_metadata       = try(each.value.user_metadata, null)
 }

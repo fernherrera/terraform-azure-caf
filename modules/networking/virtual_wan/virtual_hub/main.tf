@@ -1,5 +1,5 @@
 #----------------------------------------------------------
-# Local configuration - Default (required). 
+# Local configuration
 #----------------------------------------------------------
 locals {
   resource_group_name = data.azurerm_resource_group.rg.name

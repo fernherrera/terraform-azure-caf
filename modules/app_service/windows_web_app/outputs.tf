@@ -1,3 +1,8 @@
+output "id" {
+  value       = azurerm_windows_web_app.web_app.id
+  description = "The ID of the Windows Web App."
+}
+
 output "outbound_ip_addresses" {
   value       = azurerm_windows_web_app.web_app.outbound_ip_addresses
   description = "A comma separated list of outbound IP addresses"

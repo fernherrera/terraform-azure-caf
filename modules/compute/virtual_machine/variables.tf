@@ -680,14 +680,9 @@ variable "enable_ultra_ssd_data_disk_storage_support" {
   default     = false
 }
 
-variable "managed_identity_type" {
-  description = "The type of Managed Identity which should be assigned to the Linux Virtual Machine. Possible values are `SystemAssigned`, `UserAssigned` and `SystemAssigned, UserAssigned`"
-  default     = null
-}
-
-variable "managed_identity_ids" {
-  description = "A list of User Managed Identity ID's which should be assigned to the Linux Virtual Machine."
-  default     = null
+variable "identity" {
+  description = "(Optional) An identity block."
+  default     = {}
 }
 
 variable "winrm_protocol" {

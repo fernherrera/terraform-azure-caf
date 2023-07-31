@@ -1,10 +1,39 @@
+#----------------------------------------------------------
+# Locals declarations
+#----------------------------------------------------------
+locals {
+  # Managed identities
+  virtual_machine_managed_identities = {
+    for managed_identity in
+    flatten(
+      [
+        for sa_key, sa in local.compute.virtual_machines : {
+          sa_key = sa_key
+          type   = try(sa.identity.type, "SystemAssigned")
+          managed_identities = concat(
+            try(sa.identity.managed_identity_ids, []),
+            flatten([
+              for managed_identity_key in try(sa.identity.managed_identity_keys, []) : [
+                module.managed_identities[managed_identity_key].id
+              ]
+            ])
+          )
+        } if try(sa.identity, null) != null
+      ]
+    ) : format("%s", managed_identity.sa_key) => managed_identity
+  }
+}
+
+#----------------------------------------------------------
+# Windows App Functions
+#----------------------------------------------------------
 module "virtual_machines" {
   source   = "./modules/compute/virtual_machine"
   for_each = local.compute.virtual_machines
 
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
+  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge(lookup(each.value, "tags", {}), var.tags, local.global_settings.tags, )
+  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
 
   # Configuration
   virtual_machine_name             = each.value.virtual_machine_name
@@ -30,8 +59,7 @@ module "virtual_machines" {
   random_password_length           = try(each.value.random_password_length, null)
   generate_admin_ssh_key           = try(each.value.generate_admin_ssh_key, false)
   admin_ssh_key_data               = try(each.value.admin_ssh_key_data, null)
-  managed_identity_type            = try(each.value.managed_identity_type, null)
-  managed_identity_ids             = try(each.value.managed_identity_ids, null)
+  identity                         = try(local.virtual_machine_managed_identities[each.key], {})
   key_vault_certificate_secret_url = try(each.value.key_vault_certificate_secret_url, null)
 
   # Networking

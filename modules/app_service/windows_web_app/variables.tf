@@ -1,22 +1,20 @@
 variable "name" {
-  description = "(Required) Name of the App Service"
+  description = "(Required) The name which should be used for this Windows Web App. Changing this forces a new Windows Web App to be created."
   type        = string
 }
 
 variable "resource_group_name" {
-  description = "A container that holds related resources for an Azure solution"
-  default     = ""
+  description = " (Required) The name of the Resource Group where the Windows Web App should exist. Changing this forces a new Windows Web App to be created."
+  type        = string
 }
 
 variable "location" {
-  description = "The location/region to keep all your network resources. To get the list of all locations with table format from azure cli, run 'az account list-locations -o table'"
-  default     = ""
+  description = "(Required) The Azure Region where the Windows Web App should exist. Changing this forces a new Windows Web App to be created."
+  type        = string
 }
 
-variable "tags" {
-  description = "(Optional) A mapping of tags which should be assigned to the Windows Web App."
-  type        = map(string)
-  default     = {}
+variable "service_plan_id" {
+  description = "(Required) The ID of the Service Plan that this Windows App Service will be created in."
 }
 
 variable "application_insight" {
@@ -51,11 +49,6 @@ variable "connection_strings" {
   description = "(Optional) One or more connection_string blocks"
 }
 
-variable "diagnostic_settings" {
-  description = "(Optional) A diagnostic settings block."
-  default     = {}
-}
-
 variable "enabled" {
   description = "(Optional) Should the Windows Web App be enabled? Defaults to true."
   type        = bool
@@ -77,16 +70,18 @@ variable "key_vault_reference_identity_id" {
   description = "(Optional) The User Assigned Identity ID used for accessing KeyVault secrets. The identity must be assigned to the application in the identity block."
 }
 
-variable "service_plan_id" {
-  description = "(Required) The ID of the Service Plan that this Windows App Service will be created in."
-}
-
 variable "settings" {
   description = "Configuration object - Windows Web App"
 }
 
 variable "storage_accounts" {
   description = "(Optional)"
+}
+
+variable "tags" {
+  description = "(Optional) A mapping of tags which should be assigned to the Windows Web App."
+  type        = map(string)
+  default     = {}
 }
 
 variable "virtual_network_integration_enabled" {

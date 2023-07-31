@@ -2,13 +2,21 @@
 # Providers
 #--------------------------------------
 
+# The following providers are used to enable deployment to one or more 
+# Subscriptions.
+
 provider "azurerm" {
   features {}
 }
 
 provider "azurerm" {
+  alias           = "connectivity"
+  subscription_id = local.subscription_id_connectivity
   features {}
+}
 
-  alias           = "prd_ent"
-  subscription_id = "1ff3a5d7-0db3-4659-ae71-c1b5e9344432"
+provider "azurerm" {
+  alias           = "management"
+  subscription_id = local.subscription_id_management
+  features {}
 }

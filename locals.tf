@@ -3,6 +3,10 @@ locals {
   # CAF configuration 
   #------------------------------------------------------------------
 
+  # Subscription IDs for other landing zone subscriptions
+  subscription_id_management   = coalesce(var.subscription_id_management, data.azurerm_client_config.current.subscription_id)
+  subscription_id_connectivity = coalesce(var.subscription_id_connectivity, local.subscription_id_management)
+
   # Client Configurations
   client_config = var.client_config == {} ? {
     client_id       = data.azurerm_client_config.current.client_id
@@ -78,7 +82,8 @@ locals {
   }
 
   containers = {
-    container_apps = try(var.containers.container_apps, {})
+    container_app_environments = try(var.containers.container_app_environments, {})
+    container_apps             = try(var.containers.container_apps, {})
   }
 
   database = {
@@ -122,13 +127,6 @@ locals {
     }
   }
 
-  data_sources = {
-    api_management   = try(var.data_sources.api_management, {})
-    keyvaults        = try(var.data_sources.keyvaults, {})
-    log_analytics    = try(var.data_sources.log_analytics, {})
-    storage_accounts = try(var.data_sources.storage_accounts, {})
-  }
-
   messaging = {
     event_hub_auth_rules           = try(var.messaging.event_hub_auth_rules, {})
     event_hub_consumer_groups      = try(var.messaging.event_hub_consumer_groups, {})
@@ -138,6 +136,7 @@ locals {
   }
 
   networking = {
+    application_gateways                 = try(var.networking.application_gateways, {})
     cdn_frontdoors                       = try(var.networking.cdn_frontdoors, {})
     dns_zones                            = try(var.networking.dns_zones, {})
     express_route_circuits               = try(var.networking.express_route_circuits, {})
@@ -149,8 +148,11 @@ locals {
     private_dns                          = try(var.networking.private_dns, {})
     private_dns_resolvers                = try(var.networking.private_dns_resolvers, {})
     private_dns_vnet_links               = try(var.networking.private_dns_vnet_links, {})
+    virtual_hubs                         = try(var.networking.virtual_hubs, {})
     virtual_networks                     = try(var.networking.virtual_networks, {})
     virtual_subnets                      = try(var.networking.virtual_subnets, {})
+    virtual_wans                         = try(var.networking.virtual_wans, {})
+    vpn_sites                            = try(var.networking.vpn_sites, {})
   }
 
   remote_objects = {

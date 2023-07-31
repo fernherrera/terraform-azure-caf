@@ -9,7 +9,7 @@ locals {
 resource "azurerm_backup_container_storage_account" "container" {
   for_each = try(var.backup, null) == null ? toset([]) : toset(["enabled"])
 
-  storage_account_id  = azurerm_storage_account.stg.id
+  storage_account_id  = local.id
   resource_group_name = local.recovery_vault.resource_group_name
   recovery_vault_name = local.recovery_vault.name
 }

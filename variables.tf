@@ -2,7 +2,20 @@
 # Variables
 #--------------------------------------
 
-# Global settings
+## Subsciprion IDs for connectivty and management landing zones.
+variable "subscription_id_connectivity" {
+  description = "Sets the Subscription ID to use for Connectivity resources."
+  type        = string
+  default     = ""
+}
+
+variable "subscription_id_management" {
+  description = "Sets the Subscription ID to use for Management resources."
+  type        = string
+  default     = ""
+}
+
+## Global settings
 variable "global_settings" {
   description = "Global settings object for the current deployment."
   default = {

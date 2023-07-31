@@ -1,22 +1,16 @@
 variable "name" {
-  description = "(Required) Name of the App Function"
+  description = "(Required) The name which should be used for this Windows Function App. Changing this forces a new Windows Function App to be created. Limit the function name to 32 characters to avoid naming collisions. For more information about Function App naming rule and Host ID Collisions"
   type        = string
 }
 
 variable "resource_group_name" {
-  description = "A container that holds related resources for an Azure solution"
-  default     = ""
+  description = "(Required) The name of the Resource Group where the Windows Function App should exist. Changing this forces a new Windows Function App to be created."
+  type        = string
 }
 
 variable "location" {
-  description = "The location/region to keep all your network resources. To get the list of all locations with table format from azure cli, run 'az account list-locations -o table'"
-  default     = ""
-}
-
-variable "tags" {
-  description = "(Optional) A mapping of tags which should be assigned to the Windows Web App."
-  type        = map(string)
-  default     = {}
+  description = "(Required) The Azure Region where the Windows Function App should exist. Changing this forces a new Windows Function App to be created."
+  type        = string
 }
 
 variable "service_plan_id" {
@@ -57,11 +51,6 @@ variable "connection_strings" {
 variable "content_share_force_disabled" {
   description = "(Optional) Should Content Share Settings be disabled. Defaults to false."
   default     = false
-}
-
-variable "diagnostic_settings" {
-  description = "(Optional) A diagnostic settings block."
-  default     = {}
 }
 
 variable "daily_memory_time_quota" {
@@ -117,6 +106,12 @@ variable "storage_uses_managed_identity" {
 variable "storage_key_vault_secret_id" {
   description = "(Optional) The Key Vault Secret ID, optionally including version, that contains the Connection String to connect to the storage account for this Function App."
   default     = null
+}
+
+variable "tags" {
+  description = "(Optional) A mapping of tags which should be assigned to the Windows Web App."
+  type        = map(string)
+  default     = {}
 }
 
 variable "virtual_network_integration_enabled" {

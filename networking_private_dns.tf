@@ -62,8 +62,8 @@ module "private_dns" {
 
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
-  location            = try(each.value.location, module.resource_groups[each.value.resource_group_key].location, null)
-  tags                = merge(lookup(each.value, "tags", {}), try(var.tags, {}), )
+  location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
+  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
   records             = try(each.value.records, {})
   vnet_links          = try(each.value.vnet_links, {})
   vnets               = try(module.virtual_networks, {})

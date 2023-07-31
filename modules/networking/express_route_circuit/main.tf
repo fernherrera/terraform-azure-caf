@@ -19,8 +19,8 @@ data "azurerm_resource_group" "rg" {
 #----------------------------------------------------------
 resource "azurerm_express_route_circuit" "circuit" {
   name                     = var.name
-  resource_group_name      = var.resource_group_name
-  location                 = var.location
+  resource_group_name      = local.resource_group_name
+  location                 = local.location
   tags                     = local.tags
   service_provider_name    = try(var.service_provider_name, "Equinix")
   peering_location         = try(var.peering_location, "Silicon Valley")

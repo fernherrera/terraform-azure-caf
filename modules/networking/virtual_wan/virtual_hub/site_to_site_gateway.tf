@@ -36,7 +36,6 @@ resource "azurerm_vpn_gateway" "s2s_gateway" {
           custom_ips = each.value.bgp_settings.instance_1_bgp_peering_address.custom_ips
         }
       }
-
     }
   }
 

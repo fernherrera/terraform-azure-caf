@@ -9,9 +9,9 @@ module "virtual_networks" {
     module.resource_groups
   ]
 
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
-  location            = try(each.value.location, module.resource_groups[each.value.resource_group_key].location, null)
-  tags                = merge(lookup(each.value, "tags", {}), var.tags, local.global_settings.tags, )
+  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
+  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
 
   create_resource_group          = try(each.value.create_resource_group, false)
   vnetwork_name                  = try(each.value.vnetwork_name, null)
@@ -37,12 +37,8 @@ module "virtual_subnets" {
     module.resource_groups
   ]
 
-  resource_group_name  = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
+  resource_group_name  = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   virtual_network_name = each.value.virtual_network_name
   subnets              = try(each.value.subnets, {})
-  tags                 = merge(lookup(each.value, "tags", {}), var.tags, local.global_settings.tags, )
-}
-
-output "virtual_subnets" {
-  value = module.virtual_subnets
+  tags                 = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
 }

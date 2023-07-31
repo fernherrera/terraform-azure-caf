@@ -3,9 +3,9 @@ module "application_insights" {
   for_each = local.web.app_insights
 
   name                = each.value.name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
+  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge(lookup(each.value, "tags", {}), var.tags, local.global_settings.tags, )
+  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
 
   application_type                      = try(each.value.application_type, "other")
   diagnostics                           = try(each.value.diagnostics, null)
@@ -16,9 +16,4 @@ module "application_insights" {
   retention_in_days                     = try(each.value.retention_in_days, 90)
   sampling_percentage                   = try(each.value.sampling_percentage, null)
   workspace_id                          = can(each.value.workspace_id) ? try(each.value.workspace_id, null) : try(local.combined_objects.log_analytics[each.value.workspace_key].id, null)
-}
-
-output "application_insights" {
-  value     = module.application_insights
-  sensitive = true
 }

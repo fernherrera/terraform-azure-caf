@@ -2,10 +2,6 @@
 # Local declarations
 #----------------------------------------------------------
 locals {
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  tags                = try(var.tags, {})
-
   default_app_settings = {
     APPINSIGHTS_INSTRUMENTATIONKEY        = lookup(var.application_insight, "instrumentation_key", null),
     APPLICATIONINSIGHTS_CONNECTION_STRING = lookup(var.application_insight, "connection_string", null)
@@ -15,23 +11,13 @@ locals {
 }
 
 #----------------------------------------------------------
-# Resource Group
-#----------------------------------------------------------
-data "azurerm_resource_group" "rg" {
-  name = var.resource_group_name
-}
-
-data "azurerm_client_config" "main" {}
-
-
-#----------------------------------------------------------
 # Linux Function App  
 #----------------------------------------------------------
 resource "azurerm_linux_function_app" "function_app" {
-  resource_group_name = local.resource_group_name
-  location            = local.location
-  tags                = local.tags
   name                = var.name
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  tags                = var.tags
 
   service_plan_id                    = var.service_plan_id
   app_settings                       = local.app_settings
@@ -159,19 +145,11 @@ resource "azurerm_linux_function_app" "function_app" {
   }
 
   dynamic "identity" {
-    for_each = length(local.managed_identities) == 0 && local.identity_type == "SystemAssigned" ? [local.identity_type] : []
+    for_each = can(var.identity) ? [var.identity] : []
 
     content {
-      type = local.identity_type
-    }
-  }
-
-  dynamic "identity" {
-    for_each = length(local.managed_identities) > 0 || local.identity_type == "UserAssigned" ? [local.identity_type] : []
-
-    content {
-      type         = local.identity_type
-      identity_ids = lower(local.identity_type) == "userassigned" ? local.managed_identities : null
+      type         = identity.value.type
+      identity_ids = concat(identity.value.managed_identities, [])
     }
   }
 

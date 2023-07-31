@@ -29,3 +29,8 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "certificates" {
+  description = "(Optional) One or more Container App Environment Certificate block."
+  default     = {}
+}

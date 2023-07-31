@@ -275,11 +275,11 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
   }
 
   dynamic "identity" {
-    for_each = var.managed_identity_type != null ? [1] : []
+    for_each = can(var.identity) ? [var.identity] : []
 
     content {
-      type         = var.managed_identity_type
-      identity_ids = var.managed_identity_type == "UserAssigned" || var.managed_identity_type == "SystemAssigned, UserAssigned" ? var.managed_identity_ids : null
+      type         = identity.value.type
+      identity_ids = concat(identity.value.managed_identities, [])
     }
   }
 
@@ -352,11 +352,11 @@ resource "azurerm_windows_virtual_machine" "win_vm" {
   }
 
   dynamic "identity" {
-    for_each = var.managed_identity_type != null ? [1] : []
+    for_each = can(var.identity) ? [var.identity] : []
 
     content {
-      type         = var.managed_identity_type
-      identity_ids = var.managed_identity_type == "UserAssigned" || var.managed_identity_type == "SystemAssigned, UserAssigned" ? var.managed_identity_ids : null
+      type         = identity.value.type
+      identity_ids = concat(identity.value.managed_identities, [])
     }
   }
 

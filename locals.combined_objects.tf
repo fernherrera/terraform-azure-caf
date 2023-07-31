@@ -4,19 +4,20 @@
 #-----------------------------------------------------------------------------
 locals {
   combined_objects = {
-    api_management                    = merge(try(module.api_management, {}), try(data.azurerm_api_management.apim, {}))
+    api_management                    = try(module.api_management, {})
     azuread_apps                      = {}
     azuread_groups                    = {}
     azuread_service_principals        = {}
     diagnostic_storage_accounts       = {}
-    keyvaults                         = merge(try(module.keyvaults, {}), try(data.azurerm_key_vault.kv, {}))
+    keyvaults                         = try(module.keyvaults, {})
     keyvault_keys                     = {}
-    log_analytics                     = merge(try(module.log_analytics, {}), try(data.azurerm_log_analytics_workspace.law, {}))
+    log_analytics                     = try(module.log_analytics, {})
     managed_identities                = {}
+    mssql_servers                     = {}
     mssql_managed_instances           = {}
     mssql_managed_instances_secondary = {}
     private_dns                       = merge(try(module.private_dns, {}), try(data.azurerm_private_dns_zone.dns, {}))
-    resource_groups                   = merge(try(module.resource_groups, {}), {})
-    storage_accounts                  = merge(try(module.storage_accounts, {}), try(data.azurerm_storage_account.stg, {}))
+    resource_groups                   = try(module.resource_groups, {})
+    storage_accounts                  = try(module.storage_accounts, {})
   }
 }

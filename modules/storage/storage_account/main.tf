@@ -1,35 +1,34 @@
-#---------------------------------
-# Local declarations
-#---------------------------------
+#-------------------------------
+# Local Declarations
+#-------------------------------
 locals {
-  resource_group_name = element(coalescelist(data.azurerm_resource_group.rgrp.*.name, azurerm_resource_group.rg.*.name, [""]), 0)
-  location            = element(coalescelist(data.azurerm_resource_group.rgrp.*.location, azurerm_resource_group.rg.*.location, [""]), 0)
-  tags                = merge(try(var.tags, {}), )
+  id   = element(coalescelist(data.azurerm_storage_account.stg_e.*.id, azurerm_storage_account.stg.*.id, [""]), 0)
+  name = element(coalescelist(data.azurerm_storage_account.stg_e.*.name, azurerm_storage_account.stg.*.name, [""]), 0)
+
+  primary_blob_connection_string = element(coalescelist(data.azurerm_storage_account.stg_e.*.primary_blob_connection_string, azurerm_storage_account.stg.*.primary_blob_connection_string, [""]), 0)
+  primary_blob_endpoint          = element(coalescelist(data.azurerm_storage_account.stg_e.*.primary_blob_endpoint, azurerm_storage_account.stg.*.primary_blob_endpoint, [""]), 0)
+  primary_access_key             = element(coalescelist(data.azurerm_storage_account.stg_e.*.primary_access_key, azurerm_storage_account.stg.*.primary_access_key, [""]), 0)
+  primary_connection_string      = element(coalescelist(data.azurerm_storage_account.stg_e.*.primary_connection_string, azurerm_storage_account.stg.*.primary_connection_string, [""]), 0)
+  primary_web_host               = element(coalescelist(data.azurerm_storage_account.stg_e.*.primary_web_host, azurerm_storage_account.stg.*.primary_web_host, [""]), 0)
 }
 
-#---------------------------------------------------------
-# Resource Group Creation or selection - Default is "true"
 #----------------------------------------------------------
-data "azurerm_resource_group" "rgrp" {
-  count = var.create_resource_group == false ? 1 : 0
-  name  = var.resource_group_name
-}
-
-resource "azurerm_resource_group" "rg" {
-  count    = var.create_resource_group ? 1 : 0
-  name     = lower(var.resource_group_name)
-  location = var.location
-  tags     = merge({ "Name" = format("%s", var.resource_group_name) }, local.tags, )
-}
-
-#---------------------------------------------------------
-# Storage Account Resource Creation
+# Storage Account
 #----------------------------------------------------------
-resource "azurerm_storage_account" "stg" {
+data "azurerm_storage_account" "stg_e" {
+  count = var.existing == true ? 1 : 0
+
   name                = var.name
-  resource_group_name = local.resource_group_name
-  location            = local.location
-  tags                = merge({ "Name" = format("%s", var.name) }, local.tags, )
+  resource_group_name = var.resource_group_name
+}
+
+resource "azurerm_storage_account" "stg" {
+  count = var.existing == false ? 1 : 0
+
+  name                = var.name
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  tags                = var.tags
 
   access_tier                       = try(var.access_tier, "Hot")
   account_kind                      = try(var.account_kind, "StorageV2")
@@ -44,7 +43,6 @@ resource "azurerm_storage_account" "stg" {
   queue_encryption_key_type         = try(var.queue_encryption_key_type, null)
   table_encryption_key_type         = try(var.table_encryption_key_type, null)
 
-
   dynamic "custom_domain" {
     for_each = try(var.custom_domain, {})
 
@@ -55,19 +53,11 @@ resource "azurerm_storage_account" "stg" {
   }
 
   dynamic "identity" {
-    for_each = try(var.enable_system_msi, {})
-
-    content {
-      type = "SystemAssigned"
-    }
-  }
-
-  dynamic "identity" {
-    for_each = try(var.identity, {})
+    for_each = can(var.identity) ? [var.identity] : []
 
     content {
       type         = identity.value.type
-      identity_ids = local.managed_identities
+      identity_ids = concat(identity.value.managed_identities, [])
     }
   }
 
@@ -222,54 +212,72 @@ resource "azurerm_storage_account" "stg" {
   }
 }
 
+#----------------------------------------------------------
+# Queues
+#----------------------------------------------------------
 module "queue" {
   source   = "./queue"
   for_each = try(var.queues, {})
 
-  storage_account_name = azurerm_storage_account.stg.name
+  storage_account_name = local.name
   settings             = each.value
 }
 
+#----------------------------------------------------------
+# Tables
+#----------------------------------------------------------
 module "table" {
   source   = "./table"
   for_each = try(var.tables, {})
 
-  storage_account_name = azurerm_storage_account.stg.name
+  storage_account_name = local.name
   settings             = each.value
 }
 
+#----------------------------------------------------------
+# Blob Containers
+#----------------------------------------------------------
 module "container" {
   source   = "./container"
   for_each = try(var.containers, {})
 
-  storage_account_name = azurerm_storage_account.stg.name
+  storage_account_name = local.name
   settings             = each.value
 }
 
+#----------------------------------------------------------
+# Data Lake Filesystems
+#----------------------------------------------------------
 module "data_lake_filesystem" {
   source   = "./data_lake_filesystem"
   for_each = try(var.data_lake_filesystems, {})
 
-  storage_account_id = azurerm_storage_account.stg.id
+  storage_account_id = local.id
   settings           = each.value
 }
 
+#----------------------------------------------------------
+# File Shares
+#----------------------------------------------------------
 module "file_share" {
   source     = "./file_share"
   for_each   = try(var.file_shares, {})
   depends_on = [azurerm_backup_container_storage_account.container]
 
-  storage_account_name = azurerm_storage_account.stg.name
-  storage_account_id   = azurerm_storage_account.stg.id
+  storage_account_name = local.name
+  storage_account_id   = local.id
   settings             = each.value
   recovery_vault       = local.recovery_vault
-  resource_group_name  = local.resource_group_name
+  resource_group_name  = var.resource_group_name
 }
 
+#----------------------------------------------------------
+# Management Policies
+#----------------------------------------------------------
 module "management_policy" {
   source   = "./management_policy"
   for_each = try(var.management_policies, {})
 
-  storage_account_id = azurerm_storage_account.stg.id
+  storage_account_id = local.id
   settings           = try(var.management_policies, {})
 }

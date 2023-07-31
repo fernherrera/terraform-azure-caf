@@ -6,9 +6,9 @@ module "redis_cache" {
   for_each = local.database.redis_caches
 
   create_resource_group = try(each.value.create_resource_group, false)
-  resource_group_name   = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
-  location              = try(each.value.location, module.resource_groups[each.value.resource_group_key].location, null)
-  tags                  = merge(lookup(each.value, "tags", {}), var.tags, local.global_settings.tags, )
+  resource_group_name   = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  location              = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
+  tags                  = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
 
   name                                       = each.value.name
   log_analytics_workspace_name               = try(each.value.log_analytics_workspace_name, null)

@@ -7,13 +7,7 @@ variable "resource_group_name" {
 }
 
 variable "location" {
-  description = "location of the resource if different from the resource group."
-  default     = null
-}
-
-variable "tags" {
-  description = "(Optional) A mapping of tags to assign to the resource."
-  default     = {}
+  description = "(Required) Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created."
 }
 
 variable "sku" {
@@ -50,6 +44,11 @@ variable "zone_redundant" {
   description = "(Optional) Specifies if the EventHub Namespace should be Zone Redundant (created across Availability Zones). Changing this forces a new resource to be created. Defaults to false."
   type        = bool
   default     = false
+}
+
+variable "tags" {
+  description = "(Optional) A mapping of tags to assign to the resource."
+  default     = {}
 }
 
 variable "network_rulesets" {

@@ -1,3 +1,28 @@
+#---------------------------------
+# Local declarations
+#---------------------------------
+locals {
+  api_management_managed_identities = {
+    for managed_identity in
+    flatten(
+      [
+        for sa_key, sa in local.apim.api_management : {
+          sa_key = sa_key
+          type   = try(sa.identity.type, "SystemAssigned")
+          managed_identities = concat(
+            try(sa.identity.managed_identity_ids, []),
+            flatten([
+              for managed_identity_key in try(sa.identity.managed_identity_keys, []) : [
+                module.managed_identities[managed_identity_key].id
+              ]
+            ])
+          )
+        } if try(sa.identity, null) != null
+      ]
+    ) : format("%s", managed_identity.sa_key) => managed_identity
+  }
+}
+
 #----------------------------------------------------------
 # API Management
 #----------------------------------------------------------
@@ -6,9 +31,9 @@ module "api_management" {
   for_each = local.apim.api_management
 
   name                = each.value.name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
+  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge(lookup(each.value, "tags", {}), var.tags, local.global_settings.tags, )
+  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
 
   sku_name                                = try(each.value.sku_name, null)
   publisher_name                          = each.value.publisher_name
@@ -31,8 +56,7 @@ module "api_management" {
   policy_configuration                    = try(each.value.policy_configuration, {})
   terms_of_service_configuration          = try(each.value.terms_of_service_configuration, [])
   security_configuration                  = try(each.value.security_configuration, {})
-  identity_type                           = try(each.value.identity_type, null)
-  identity_ids                            = try(each.value.identity_ids, [])
+  identity                                = try(local.api_management_managed_identities[each.key], {})
   named_values                            = try(each.value.named_values, [])
   products                                = try(each.value.products, [])
   create_product_group_and_relationships  = try(each.value.create_product_group_and_relationships, false)
@@ -42,9 +66,6 @@ module "api_management" {
   subnets                                 = try(module.virtual_subnets, null)
 }
 
-output "api_management" {
-  value = module.api_management
-}
 
 #----------------------------------------------------------
 # APIM Products
@@ -63,9 +84,6 @@ module "api_management_product" {
   published             = each.value.published
 }
 
-output "api_management_product" {
-  value = module.api_management_product
-}
 
 #----------------------------------------------------------
 # APIM Subscriptions
@@ -85,9 +103,4 @@ module "api_management_subscription" {
   state               = try(each.value.state, null)
   subscription_id     = try(each.value.subscription_id, null)
   allow_tracing       = try(each.value.allow_tracing, null)
-}
-
-output "api_management_subscription" {
-  value     = module.api_management_subscription
-  sensitive = true
 }

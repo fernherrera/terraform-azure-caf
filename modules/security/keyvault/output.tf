@@ -1,15 +1,15 @@
 output "id" {
-  value = azurerm_key_vault.keyvault.id
+  value = local.id
 }
 
 output "vault_uri" {
-  value = azurerm_key_vault.keyvault.vault_uri
+  value = local.vault_uri
 }
 
 output "name" {
-  value = azurerm_key_vault.keyvault.name
+  value = local.name
 }
 
 output "rbac_id" {
-  value = azurerm_key_vault.keyvault.id
+  value = local.id
 }

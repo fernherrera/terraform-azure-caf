@@ -1,22 +1,16 @@
 variable "name" {
-  description = "Name of the API Management service instance"
+  description = "(Required) The name which should be used for this Service Plan. Changing this forces a new AppService to be created."
   type        = string
 }
 
 variable "resource_group_name" {
-  description = "A container that holds related resources for an Azure solution"
-  default     = ""
+  description = "(Required) The name of the Resource Group where the AppService should exist. Changing this forces a new AppService to be created."
+  type        = string
 }
 
 variable "location" {
-  description = "The location/region to keep all your network resources. To get the list of all locations with table format from azure cli, run 'az account list-locations -o table'"
-  default     = ""
-}
-
-variable "tags" {
-  description = "A map of tags to add to all resources"
-  type        = map(string)
-  default     = {}
+  description = "(Required) The Azure Region where the Service Plan should exist. Changing this forces a new AppService to be created."
+  type        = string
 }
 
 variable "os_type" {
@@ -54,7 +48,8 @@ variable "zone_balancing_enabled" {
   default     = false
 }
 
-variable "diagnostic_settings" {
-  description = "(Optional) A diagnostic settings block."
+variable "tags" {
+  description = "(Optional) A mapping of tags which should be assigned to the AppService."
+  type        = map(string)
   default     = {}
 }

@@ -1,20 +1,28 @@
+variable "name" {
+  description = "(Required) The name of the API Management Service."
+  type        = string
+}
+
 variable "resource_group_name" {
   description = "(Required) The name of the Resource Group in which the API Management Service should be exist."
+  type        = string
 }
 
 variable "location" {
   description = "(Required) The Azure location where the API Management Service exists."
+  type        = string
+}
+
+variable "existing" {
+  description = "(Optional) Whether to reference an existing resource group."
+  default     = false
+  type        = bool
 }
 
 variable "tags" {
   description = "(Optional) A mapping of tags assigned to the resource."
   type        = map(string)
   default     = {}
-}
-
-variable "name" {
-  description = "(Required) The name of the API Management Service."
-  type        = string
 }
 
 variable "sku_name" {
@@ -34,7 +42,7 @@ variable "publisher_email" {
 }
 
 variable "additional_location" {
-  description = "List of the name of the Azure Region in which the API Management Service should be expanded to."
+  description = "(Optional) List of the name of the Azure Region in which the API Management Service should be expanded to."
   type        = list(map(string))
   default     = []
 }
@@ -52,7 +60,7 @@ variable "client_certificate_enabled" {
 }
 
 variable "certificate_configuration" {
-  description = "List of certificate configurations"
+  description = "(Optional) List of certificate configurations"
   type        = list(map(string))
   default     = []
 }
@@ -70,55 +78,55 @@ variable "min_api_version" {
 }
 
 variable "enable_http2" {
-  description = "Should HTTP/2 be supported by the API Management Service?"
+  description = "(Optional) Should HTTP/2 be supported by the API Management Service?"
   type        = bool
   default     = false
 }
 
 variable "notification_sender_email" {
-  description = "Email address from which the notification will be sent"
+  description = "(Optional) Email address from which the notification will be sent"
   type        = string
   default     = null
 }
 
 variable "enable_sign_in" {
-  description = "Should anonymous users be redirected to the sign in page?"
+  description = "(Optional) Should anonymous users be redirected to the sign in page?"
   type        = bool
   default     = false
 }
 
 variable "enable_sign_up" {
-  description = "Can users sign up on the development portal?"
+  description = "(Optional) Can users sign up on the development portal?"
   type        = bool
   default     = false
 }
 
 variable "management_hostname_configuration" {
-  description = "List of management hostname configurations"
+  description = "(Optional) List of management hostname configurations"
   type        = list(map(string))
   default     = []
 }
 
 variable "scm_hostname_configuration" {
-  description = "List of scm hostname configurations"
+  description = "(Optional) List of scm hostname configurations"
   type        = list(map(string))
   default     = []
 }
 
 variable "proxy_hostname_configuration" {
-  description = "List of proxy hostname configurations"
+  description = "(Optional) List of proxy hostname configurations"
   type        = list(map(string))
   default     = []
 }
 
 variable "portal_hostname_configuration" {
-  description = "Legacy portal hostname configurations"
+  description = "(Optional) Legacy portal hostname configurations"
   type        = list(map(string))
   default     = []
 }
 
 variable "developer_portal_hostname_configuration" {
-  description = "Developer portal hostname configurations"
+  description = "(Optional) Developer portal hostname configurations"
   type        = list(map(string))
   default     = []
 }
@@ -130,7 +138,7 @@ variable "policy_configuration" {
 }
 
 variable "terms_of_service_configuration" {
-  description = "Map of terms of service configuration"
+  description = "(Optional) Map of terms of service configuration"
   type        = list(map(string))
   nullable    = false
   default = [{
@@ -141,45 +149,36 @@ variable "terms_of_service_configuration" {
 }
 
 variable "security_configuration" {
-  description = "Map of security configuration"
+  description = "(Optional) Map of security configuration"
   type        = map(string)
   default     = {}
 }
 
 variable "redis_cache_configuration" {
-  description = "Map of redis cache configurations"
+  description = "(Optional) Map of redis cache configurations"
   default     = {}
 }
 
 ### IDENTITY
-
-variable "identity_type" {
-  description = "Type of Managed Service Identity that should be configured on this API Management Service"
-  type        = string
-  default     = "SystemAssigned"
-  nullable    = false
-}
-
-variable "identity_ids" {
-  description = "A list of IDs for User Assigned Managed Identity resources to be assigned. This is required when type is set to UserAssigned or SystemAssigned, UserAssigned."
-  type        = list(string)
-  default     = []
+variable "identity" {
+  description = "(Optional) An identity block."
+  default     = {}
 }
 
 variable "named_values" {
-  description = "Map containing the name of the named values as key and value as values"
+  description = "(Optional) Map containing the name of the named values as key and value as values"
   type        = list(map(string))
   default     = []
 }
 
 variable "products" {
-  description = "List of products to create"
+  description = "(Optional) List of products to create"
   type        = list(string)
   default     = []
 }
 
 variable "create_product_group_and_relationships" {
-  description = "Create local APIM groups with name identical to products and create a relationship between groups and products"
+  description = "(Optional) Create local APIM groups with name identical to products and create a relationship between groups and products"
   type        = bool
   default     = false
 }
@@ -187,13 +186,13 @@ variable "create_product_group_and_relationships" {
 ### NETWORKING
 
 variable "virtual_network_type" {
-  description = "The type of virtual network you want to use, valid values include: None, External, Internal."
+  description = "(Optional) The type of virtual network you want to use, valid values include: None, External, Internal."
   type        = string
   default     = null
 }
 
 variable "virtual_network_configuration" {
-  description = "The id(s) of the subnet(s) that will be used for the API Management. Required when virtual_network_type is External or Internal"
+  description = "(Optional) The id(s) of the subnet(s) that will be used for the API Management. Required when virtual_network_type is External or Internal"
   default     = null
 }
 

@@ -1,3 +1,8 @@
+variable "name" {
+  description = "(Required) The name which should be used for this Linux Web App."
+  type        = string
+}
+
 variable "resource_group_name" {
   description = "(Required) The name of the Resource Group where the Linux Web App should exist."
   type        = string
@@ -5,17 +10,6 @@ variable "resource_group_name" {
 
 variable "location" {
   description = "(Required) The Azure Region where the Linux Web App should exist."
-  type        = string
-}
-
-variable "tags" {
-  description = "(Optional) A mapping of tags which should be assigned to the Linux Web App."
-  type        = map(string)
-  default     = {}
-}
-
-variable "name" {
-  description = "(Required) The name which should be used for this Linux Web App."
   type        = string
 }
 
@@ -60,11 +54,6 @@ variable "connection_strings" {
   description = "(Optional) One or more connection_string blocks."
 }
 
-variable "diagnostic_settings" {
-  description = "(Optional) A diagnostic settings block."
-  default     = {}
-}
-
 variable "enabled" {
   description = "(Optional) Should the Linux Web App be enabled? Defaults to true."
   type        = bool
@@ -88,6 +77,12 @@ variable "key_vault_reference_identity_id" {
 
 variable "storage_accounts" {
   description = "(Optional) A map of storage account resources."
+  default     = {}
+}
+
+variable "tags" {
+  description = "(Optional) A mapping of tags which should be assigned to the Linux Web App."
+  type        = map(string)
   default     = {}
 }
 

@@ -90,57 +90,26 @@ variable "template" {
 variable "dapr" {
   description = "(Optional) A dapr block."
   default     = {}
-  type = object({
-    app_id       = string
-    app_port     = number
-    app_protocol = optional(string)
-  })
 }
 
 variable "identity" {
   description = "(Optional) An identity block."
   default     = {}
-  type = object({
-    type         = string
-    identity_ids = optional(list(string))
-  })
 }
 
 variable "ingress" {
   description = "(Optional) An ingress block."
   default     = {}
-  type = object({
-    allow_insecure_connections = optional(bool, false)
-    external_enabled           = optional(bool, false)
-    target_port                = number
-    transport                  = optional(string)
-    traffic_weight = object({
-      label           = optional(string)
-      latest_revision = optional(string)
-      revision_suffix = optional(string)
-      percentage      = number
-    })
-  })
 }
 
 variable "registry" {
   description = "(Optional) A registry block."
   default     = {}
-  type = list(object({
-    server               = string
-    username             = optional(string)
-    password_secret_name = optional(string)
-    identity             = optional(string)
-  }))
 }
 
 variable "secret" {
   description = "(Optional) One or more secret block."
   default     = {}
-  type = list(object({
-    name  = string
-    value = string
-  }))
 }
 
 variable "tags" {

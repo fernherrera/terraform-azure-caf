@@ -1,6 +1,6 @@
-#---------------------------------
+#----------------------------------------------------------
 # Local declarations
-#---------------------------------
+#----------------------------------------------------------
 locals {
   name                = var.name
   resource_group_name = data.azurerm_resource_group.rg.name
@@ -11,6 +11,8 @@ locals {
   frontend_ip_configuration_name = "${local.name}-feip"
   gateway_ip_configuration_name  = "${local.name}-gwipc"
   public_ip_name                 = "${local.name}-gw-pip"
+  pip_diag_name                  = "${local.name}-pip-diag"
+  agw_diag_name                  = "${local.name}-agw-diag"
 }
 
 #----------------------------------------------------------
@@ -45,9 +47,9 @@ data "azurerm_storage_account" "storeacc" {
   resource_group_name = local.resource_group_name
 }
 
-#-----------------------------------
+#----------------------------------------------------------
 # Public IP for application gateway
-#-----------------------------------
+#----------------------------------------------------------
 resource "azurerm_public_ip" "pip" {
   name                = local.public_ip_name
   location            = local.location
@@ -109,9 +111,7 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------
   # Backend Address Pool Configuration (Required)
-  #----------------------------------------------------------
   dynamic "backend_address_pool" {
     for_each = var.backend_address_pools
 
@@ -122,9 +122,7 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------
   # Backend HTTP Settings (Required)
-  #----------------------------------------------------------
   dynamic "backend_http_settings" {
     for_each = var.backend_http_settings
 
@@ -161,9 +159,7 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------
   # HTTP Listener Configuration (Required)
-  #----------------------------------------------------------
   dynamic "http_listener" {
     for_each = var.http_listeners
     content {
@@ -188,9 +184,7 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------
   # Request routing rules Configuration (Required)
-  #----------------------------------------------------------
   dynamic "request_routing_rule" {
     for_each = var.request_routing_rules
     content {
@@ -205,22 +199,18 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #---------------------------------------------------------------
   # Identity block Configuration (Optional)
   # A list with a single user managed identity id to be assigned
-  #---------------------------------------------------------------
   dynamic "identity" {
-    for_each = try(var.identity, null) == null ? [] : [1]
+    for_each = can(var.identity) ? [var.identity] : []
 
     content {
-      type         = "UserAssigned"
-      identity_ids = var.identity
+      type         = identity.value.type
+      identity_ids = concat(identity.value.managed_identities, [])
     }
   }
 
-  #----------------------------------------------------------
   # Authentication SSL Certificate Configuration (Optional)
-  #----------------------------------------------------------
   dynamic "authentication_certificate" {
     for_each = var.authentication_certificates
 
@@ -230,9 +220,7 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------
   # Trusted Root SSL Certificate Configuration (Optional)
-  #----------------------------------------------------------
   dynamic "trusted_root_certificate" {
     for_each = var.trusted_root_certificates
 
@@ -242,11 +230,9 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------------------------------------------------------------------------------------------------------------------
   # SSL Policy for Application Gateway (Optional)
   # Application Gateway has three predefined security policies to get the appropriate level of security
   # AppGwSslPolicy20150501 - MinProtocolVersion(TLSv1_0), AppGwSslPolicy20170401 - MinProtocolVersion(TLSv1_1), AppGwSslPolicy20170401S - MinProtocolVersion(TLSv1_2)
-  #----------------------------------------------------------------------------------------------------------------------------------------------------------------------
   dynamic "ssl_policy" {
     for_each = try(var.ssl_policy, null) == null ? [] : [1]
 
@@ -259,9 +245,7 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------
   # SSL Certificate (.pfx) Configuration (Optional)
-  #----------------------------------------------------------
   dynamic "ssl_certificate" {
     for_each = var.ssl_certificates
 
@@ -273,9 +257,7 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------
   # Health Probe (Optional)
-  #----------------------------------------------------------
   dynamic "probe" {
     for_each = var.health_probes
 
@@ -293,9 +275,7 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------
   # URL Path Mappings (Optional)
-  #----------------------------------------------------------
   dynamic "url_path_map" {
     for_each = var.url_path_maps
 
@@ -322,9 +302,7 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------
   # Redirect Configuration (Optional)
-  #----------------------------------------------------------
   dynamic "redirect_configuration" {
     for_each = var.redirect_configuration
 
@@ -338,9 +316,7 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------
   # Custom error configuration (Optional)
-  #----------------------------------------------------------
   dynamic "custom_error_configuration" {
     for_each = var.custom_error_configuration
 
@@ -350,9 +326,7 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------
   # Rewrite Rules Set configuration (Optional)
-  #----------------------------------------------------------
   dynamic "rewrite_rule_set" {
     for_each = var.rewrite_rule_set
 
@@ -409,10 +383,8 @@ resource "azurerm_application_gateway" "agw" {
     }
   }
 
-  #----------------------------------------------------------
   # Web application Firewall (WAF) configuration (Optional)
   # Tier to be either “WAF” or “WAF V2”
-  #----------------------------------------------------------
   dynamic "waf_configuration" {
     for_each = var.waf_configuration != null ? [var.waf_configuration] : []
 
@@ -453,13 +425,13 @@ resource "azurerm_application_gateway" "agw" {
   }
 }
 
-#---------------------------------------------------------------
+#----------------------------------------------------------
 # azurerm monitoring diagnostics - PIP, and Application Gateway
-#---------------------------------------------------------------
+#----------------------------------------------------------
 resource "azurerm_monitor_diagnostic_setting" "pip-diag" {
   count = var.log_analytics_workspace_name != null || var.storage_account_name != null ? 1 : 0
 
-  name                       = lower("${var.app_gateway_name}-pip-diag")
+  name                       = local.pip_diag_name
   target_resource_id         = azurerm_public_ip.pip.id
   storage_account_id         = var.storage_account_name != null ? data.azurerm_storage_account.storeacc.0.id : null
   log_analytics_workspace_id = data.azurerm_log_analytics_workspace.logws.0.id
@@ -495,7 +467,7 @@ resource "azurerm_monitor_diagnostic_setting" "pip-diag" {
 resource "azurerm_monitor_diagnostic_setting" "agw-diag" {
   count = var.log_analytics_workspace_name != null || var.storage_account_name != null ? 1 : 0
 
-  name                       = lower("${var.app_gateway_name}-agw-diag")
+  name                       = local.agw_diag_name
   target_resource_id         = azurerm_application_gateway.main.id
   storage_account_id         = var.storage_account_name != null ? data.azurerm_storage_account.storeacc.0.id : null
   log_analytics_workspace_id = data.azurerm_log_analytics_workspace.logws.0.id

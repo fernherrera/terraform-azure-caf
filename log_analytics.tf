@@ -1,11 +1,44 @@
+#----------------------------------------------------------
+# Local declarations
+#----------------------------------------------------------
+locals {
+  log_analytics_diagnostics_defaults = {
+    name        = "operational_logs_and_metrics"
+    enabled_log = []
+    log = [
+      {
+        name    = "Audit"
+        enabled = true
+        retention_policy = {
+          enabled = true
+          days    = 7
+        }
+      },
+    ]
+    metric = [
+      {
+        name    = "AllMetrics"
+        enabled = true
+        retention_policy = {
+          enabled = true
+          days    = 7
+        }
+      }
+    ]
+  }
+}
+
+#----------------------------------------------------------
+# Log Analytics Workspace
+#----------------------------------------------------------
 module "log_analytics" {
   source   = "./modules/log_analytics"
   for_each = local.shared_services.log_analytics
 
   name                = each.value.name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].resource_group_name, null)
+  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge({ "Name" = format("%s", each.value.name) }, lookup(each.value, "tags", {}), try(var.tags, {}), local.global_settings.tags, )
+  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
 
   diagnostic_settings                = try(each.value.diagnostic_settings, {})
   daily_quota_gb                     = try(each.value.daily_quota_gb, null)
@@ -16,20 +49,31 @@ module "log_analytics" {
   retention_in_days                  = try(each.value.retention_in_days, 30)
 }
 
-output "log_analytics" {
-  value     = module.log_analytics
-  sensitive = true
-}
 
-
+#----------------------------------------------------------
+# Log Analytics Workspace Diagnostic Setting
+#----------------------------------------------------------
 module "log_analytics_diagnostics" {
   source   = "./modules/monitor/diagnostic_settings"
   for_each = var.shared_services.log_analytics
 
-  name                       = "diag-settings"
-  target_resource_id         = module.log_analytics[each.key].id
-  diagnostics_definition_key = "log_analytics"
+  target_resource_id = module.log_analytics[each.key].id
+
+  eventhub_name                  = try(each.value.diagnostic_settings.eventhub_name, null)
+  eventhub_authorization_rule_id = try(each.value.diagnostic_settings.eventhub_authorization_rule_id, null)
+
+  log_analytics_workspace_id     = try(each.value.diagnostic_settings.log_analytics_workspace_id, null)
+  log_analytics_destination_type = try(each.value.diagnostic_settings.log_analytics_destination_type, null)
+
+  partner_solution_id = try(each.value.diagnostic_settings.partner_solution_id, null)
+  storage_account_id  = try(each.value.diagnostic_settings.storage_account_id, null)
+
+  name        = try(each.value.diagnostic_settings.name, local.log_analytics_diagnostics_defaults.name)
+  enabled_log = try(each.value.diagnostic_settings.enabled_log, local.log_analytics_diagnostics_defaults.enabled_log, [])
+  log         = try(each.value.diagnostic_settings.log, local.log_analytics_diagnostics_defaults.log, [])
+  metric      = try(each.value.diagnostic_settings.metric, local.log_analytics_diagnostics_defaults.metric, [])
 }
+
 
 # module "log_analytics_storage_insights" {
 #   source   = "./modules/monitoring/log_analytics_storage_insights"
@@ -48,8 +92,4 @@ module "log_analytics_diagnostics" {
 #     log_analytics   = local.combined_objects_log_analytics
 #   }
 # */
-# }
-
-# output "log_analytics_storage_insights" {
-#   value = module.log_analytics_storage_insights
 # }

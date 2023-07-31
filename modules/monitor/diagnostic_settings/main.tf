@@ -1,6 +1,6 @@
-#-------------------------------
+#----------------------------------------------------------
 # Local Declarations
-#-------------------------------
+#----------------------------------------------------------
 locals {
   eventhub_name                  = try(var.eventhub_name, null)
   eventhub_authorization_rule_id = try(var.eventhub_authorization_rule_id, null)
@@ -15,67 +15,64 @@ locals {
 #----------------------------------------------------------
 resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
 
-  name               = var.name
-  target_resource_id = var.target_resource_id
-
+  name                           = var.name
+  target_resource_id             = var.target_resource_id
   eventhub_name                  = local.eventhub_name
   eventhub_authorization_rule_id = local.eventhub_authorization_rule_id
-
   log_analytics_workspace_id     = local.log_analytics_workspace_id
   log_analytics_destination_type = local.log_analytics_destination_type
-
-  storage_account_id = local.storage_account_id
-
-  partner_solution_id = local.partner_solution_id
+  storage_account_id             = local.storage_account_id
+  partner_solution_id            = local.partner_solution_id
 
   dynamic "enabled_log" {
-    for_each = lookup(var.diagnostics_definition[var.diagnostics_definition_key].categories, "enabled_log", {})
+    for_each = try(var.enabled_log, [])
 
     content {
-      category = enabled_log.value[0]
+      category       = enabled_log.category
+      category_group = try(enabled_log.category_group, null)
 
       dynamic "retention_policy" {
-        for_each = length(enabled_log.value) > 2 ? [1] : []
+        for_each = try(enabled_log.retention_policy, null) != null ? [1] : []
 
         content {
-          enabled = enabled_log.value[2]
-          days    = enabled_log.value[3]
+          enabled = enabled_log.retention_policy.enabled
+          days    = try(enabled_log.retention_policy.days, 0)
         }
       }
     }
   }
 
   dynamic "log" {
-    for_each = lookup(var.diagnostics_definition[var.diagnostics_definition_key].categories, "log", {})
+    for_each = try(var.log, [])
 
     content {
-      category = log.value[0]
-      enabled  = log.value[1]
+      category = log.category
+      enabled  = try(log.enabled, true)
 
       dynamic "retention_policy" {
-        for_each = length(log.value) > 2 ? [1] : []
+        for_each = try(log.retention_policy, null) != null ? [1] : []
 
         content {
-          enabled = log.value[2]
-          days    = log.value[3]
+          enabled = log.retention_policy.enabled
+          days    = try(log.retention_policy.days, 0)
         }
       }
     }
   }
 
   dynamic "metric" {
-    for_each = lookup(var.diagnostics_definition[var.diagnostics_definition_key].categories, "metric", {})
+    for_each = try(var.metric, [])
 
     content {
-      category = metric.value[0]
-      enabled  = metric.value[1]
+      category = metric.category
+      enabled  = try(metric.enabled, true)
 
       dynamic "retention_policy" {
-        for_each = length(metric.value) > 2 ? [1] : []
+        for_each = try(metric.retention_policy, null) != null ? [1] : []
 
         content {
-          enabled = metric.value[2]
-          days    = metric.value[3]
+          enabled = metric.retention_policy.enabled
+          days    = try(metric.retention_policy.days, 0)
         }
       }
     }

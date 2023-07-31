@@ -1,6 +1,6 @@
-variable "create_resource_group" {
-  description = "Whether to create resource group and use it for all networking resources"
-  default     = false
+variable "name" {
+  description = "Name of the API Management service instance"
+  type        = string
 }
 
 variable "resource_group_name" {
@@ -17,11 +17,6 @@ variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
   default     = {}
-}
-
-variable "name" {
-  description = "Name of the API Management service instance"
-  type        = string
 }
 
 variable "settings" {}

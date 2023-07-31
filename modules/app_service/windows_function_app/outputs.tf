@@ -1,3 +1,8 @@
+output "id" {
+  value       = azurerm_windows_function_app.function_app.id
+  description = "The ID of the Windows Function App."
+}
+
 output "custom_domain_vertification_id" {
   value       = azurerm_windows_function_app.function_app.custom_domain_verification_id
   description = "The identifier for DNS txt ownership"

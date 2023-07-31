@@ -1,27 +1,11 @@
-#-------------------------------
-# Local Declarations
-#-------------------------------
-locals {
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  tags                = try(var.tags, {})
-}
-
-#----------------------------------------------------------
-# Resource Group
-#----------------------------------------------------------
-data "azurerm_resource_group" "rg" {
-  name = var.resource_group_name
-}
-
 #----------------------------------------------------------
 # Application Insights 
 #----------------------------------------------------------
 resource "azurerm_application_insights" "appinsights" {
   name                = var.name
-  location            = local.location
-  resource_group_name = local.resource_group_name
-  tags                = local.tags
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  tags                = var.tags
 
   application_type                      = var.application_type
   daily_data_cap_in_gb                  = var.daily_data_cap_in_gb

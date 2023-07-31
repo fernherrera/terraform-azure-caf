@@ -10,7 +10,7 @@ variable "type" {
   description = "(Required) The Dapr Component Type. For example state.azure.blobstorage. Changing this forces a new resource to be created."
 }
 
-variable "version" {
+variable "component_version" {
   description = "(Required) The version of the component."
 }
 

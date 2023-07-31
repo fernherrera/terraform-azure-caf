@@ -57,11 +57,11 @@ resource "azurerm_mysql_flexible_server" "server" {
   }
 
   dynamic "identity" {
-    for_each = try(var.identity, {})
+    for_each = can(var.identity) ? [var.identity] : []
 
     content {
-      type         = local.identity_type
-      identity_ids = local.managed_identities
+      type         = identity.value.type
+      identity_ids = concat(identity.value.managed_identities, [])
     }
   }
 

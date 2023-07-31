@@ -1,23 +1,14 @@
 output "id" {
-  value = azurerm_mssql_server.mssql.id
-}
-
-output "name" {
-  value = azurerm_mssql_server.mssql.name
+  description = "The Microsoft SQL Server ID."
+  value       = local.id
 }
 
 output "fully_qualified_domain_name" {
-  value = azurerm_mssql_server.mssql.fully_qualified_domain_name
+  description = "The fully qualified domain name of the Azure SQL Server (e.g. myServerName.database.windows.net)"
+  value       = local.fully_qualified_domain_name
 }
 
-output "rbac_id" {
-  value = try(azurerm_mssql_server.mssql.identity[0].principal_id, null)
-}
-
-output "identity" {
-  value = try(azurerm_mssql_server.mssql.identity, null)
-}
-
-output "azuread_administrator" {
-  value = try(azurerm_mssql_server.mssql.azuread_administrator, null)
+output "restorable_dropped_database_ids" {
+  description = "A list of dropped restorable database IDs on the server."
+  value       = local.restorable_dropped_database_ids
 }

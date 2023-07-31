@@ -3,7 +3,7 @@ module "mssql_databases" {
   for_each = local.database.mssql_databases
 
   name = each.value.name
-  tags = merge(lookup(each.value, "tags", {}), var.tags, local.global_settings.tags, )
+  tags = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
 
   cloud              = local.cloud
   managed_identities = local.combined_objects.managed_identities
@@ -15,9 +15,6 @@ module "mssql_databases" {
   location           = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
 }
 
-output "mssql_databases" {
-  value = module.mssql_databases
-}
 
 # Database auditing
 # data "azurerm_storage_account" "mssqldb_auditing" {

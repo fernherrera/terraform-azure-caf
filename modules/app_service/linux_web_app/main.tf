@@ -2,10 +2,6 @@
 # Local Declarations
 #-------------------------------
 locals {
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  tags                = merge(try(var.tags, {}), )
-
   app_settings = merge(try(var.app_settings, {}), var.application_insight == null ? {} :
     {
       "APPINSIGHTS_INSTRUMENTATIONKEY"             = var.application_insight.instrumentation_key,
@@ -25,21 +21,14 @@ locals {
   http_logs_sas_url         = can(var.settings.logs.http_logs.storage_account_key) ? "${local.http_logs_storage_account.primary_blob_endpoint}${local.http_logs_storage_account.containers[var.settings.logs.http_logs.container_key].name}${data.azurerm_storage_account_blob_container_sas.http_logs[0].sas}" : null
 }
 
-#----------------------------------------------------------
-# Resource Group
-#----------------------------------------------------------
-data "azurerm_resource_group" "rg" {
-  name = var.resource_group_name
-}
-
 #---------------------------------------------------------
 # Linux Web App Service 
 #---------------------------------------------------------
 resource "azurerm_linux_web_app" "web_app" {
   name                = var.name
-  location            = local.location
-  resource_group_name = local.resource_group_name
-  tags                = local.tags
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  tags                = var.tags
 
   app_settings                       = local.app_settings
   client_affinity_enabled            = try(var.client_affinity_enabled, null)
@@ -162,19 +151,11 @@ resource "azurerm_linux_web_app" "web_app" {
   }
 
   dynamic "identity" {
-    for_each = length(local.managed_identities) == 0 && local.identity_type == "SystemAssigned" ? [local.identity_type] : []
+    for_each = can(var.identity) ? [var.identity] : []
 
     content {
-      type = local.identity_type
-    }
-  }
-
-  dynamic "identity" {
-    for_each = length(local.managed_identities) > 0 || local.identity_type == "UserAssigned" ? [local.identity_type] : []
-
-    content {
-      type         = local.identity_type
-      identity_ids = lower(local.identity_type) == "userassigned" ? local.managed_identities : null
+      type         = identity.value.type
+      identity_ids = concat(identity.value.managed_identities, [])
     }
   }
 
@@ -426,7 +407,7 @@ resource "azurerm_app_service_custom_hostname_binding" "app_service" {
   for_each = try(var.settings.custom_hostname_binding, {})
 
   app_service_name    = azurerm_linux_web_app.web_app.name
-  resource_group_name = local.resource_group_name
+  resource_group_name = var.resource_group_name
   hostname            = each.value.hostname
   ssl_state           = try(each.value.ssl_state, null)
   thumbprint          = try(each.value.thumbprint, null)

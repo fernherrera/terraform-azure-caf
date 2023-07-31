@@ -1,27 +1,11 @@
-#---------------------------------
-# Local declarations
-#---------------------------------
-locals {
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  tags                = try(var.tags, {})
-}
-
-#---------------------------------------------------------
-# Resource Group
-#----------------------------------------------------------
-data "azurerm_resource_group" "rg" {
-  name = var.resource_group_name
-}
-
 #--------------------------------------
 # Event Hub Namespaces
 #--------------------------------------
 resource "azurerm_eventhub_namespace" "evh" {
   name                          = var.name
-  location                      = local.location
-  resource_group_name           = local.resource_group_name
-  tags                          = local.tags
+  location                      = var.location
+  resource_group_name           = var.resource_group_name
+  tags                          = var.tags
   sku                           = var.sku
   capacity                      = try(var.capacity, null)
   auto_inflate_enabled          = try(var.auto_inflate_enabled, null)
@@ -33,10 +17,11 @@ resource "azurerm_eventhub_namespace" "evh" {
   local_authentication_enabled  = try(var.local_authentication_enabled, null)
 
   dynamic "identity" {
-    for_each = try(var.identity, {})
+    for_each = can(var.identity) ? [var.identity] : []
 
     content {
-      type = identity.value.type
+      type         = identity.value.type
+      identity_ids = concat(identity.value.managed_identities, [])
     }
   }
 

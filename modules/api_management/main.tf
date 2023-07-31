@@ -1,26 +1,38 @@
-#---------------------------------
-# Local declarations
-#---------------------------------
+#-------------------------------
+# Local Declarations
+#-------------------------------
 locals {
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  tags                = merge(try(var.tags, {}), )
-}
+  id       = element(coalescelist(data.azurerm_api_management.apim_e.*.id, azurerm_api_management.apim.*.id, [""]), 0)
+  name     = element(coalescelist(data.azurerm_api_management.apim_e.*.name, azurerm_api_management.apim.*.name, [""]), 0)
+  location = element(coalescelist(data.azurerm_api_management.apim_e.*.location, azurerm_api_management.apim.*.location, [""]), 0)
 
-#---------------------------------------------------------
-# Resource Group
-#----------------------------------------------------------
-data "azurerm_resource_group" "rg" {
-  name = var.resource_group_name
+  additional_location  = element(coalescelist(data.azurerm_api_management.apim_e.*.additional_location, azurerm_api_management.apim.*.additional_location, [""]), 0)
+  gateway_url          = element(coalescelist(data.azurerm_api_management.apim_e.*.gateway_url, azurerm_api_management.apim.*.gateway_url, [""]), 0)
+  gateway_regional_url = element(coalescelist(data.azurerm_api_management.apim_e.*.gateway_regional_url, azurerm_api_management.apim.*.gateway_regional_url, [""]), 0)
+  management_api_url   = element(coalescelist(data.azurerm_api_management.apim_e.*.management_api_url, azurerm_api_management.apim.*.management_api_url, [""]), 0)
+  portal_url           = element(coalescelist(data.azurerm_api_management.apim_e.*.portal_url, azurerm_api_management.apim.*.portal_url, [""]), 0)
+  public_ip_addresses  = element(coalescelist(data.azurerm_api_management.apim_e.*.public_ip_addresses, azurerm_api_management.apim.*.public_ip_addresses, [""]), 0)
+  private_ip_addresses = element(coalescelist(data.azurerm_api_management.apim_e.*.private_ip_addresses, azurerm_api_management.apim.*.private_ip_addresses, [""]), 0)
+  scm_url              = element(coalescelist(data.azurerm_api_management.apim_e.*.scm_url, azurerm_api_management.apim.*.scm_url, [""]), 0)
+  identity             = element(coalescelist(data.azurerm_api_management.apim_e.*.identity, azurerm_api_management.apim.*.identity, [""]), 0)
 }
 
 #--------------------------------------
 # API Management
 #--------------------------------------
+data "azurerm_api_management" "apim_e" {
+  count = var.existing == true ? 1 : 0
+
+  name                = var.name
+  resource_group_name = var.resource_group_name
+}
+
 resource "azurerm_api_management" "apim" {
+  count = var.existing == false ? 1 : 0
+
   name                       = var.name
-  location                   = local.location
-  resource_group_name        = local.resource_group_name
+  location                   = var.location
+  resource_group_name        = var.resource_group_name
   publisher_name             = var.publisher_name
   publisher_email            = var.publisher_email
   sku_name                   = var.sku_name
@@ -30,7 +42,7 @@ resource "azurerm_api_management" "apim" {
   client_certificate_enabled = var.client_certificate_enabled
   notification_sender_email  = var.notification_sender_email
   virtual_network_type       = var.virtual_network_type
-  tags                       = local.tags
+  tags                       = var.tags
 
   sign_in {
     enabled = var.enable_sign_in
@@ -78,9 +90,13 @@ resource "azurerm_api_management" "apim" {
     }
   }
 
-  identity {
-    type         = var.identity_type
-    identity_ids = replace(var.identity_type, "UserAssigned", "") == var.identity_type ? null : var.identity_ids
+  dynamic "identity" {
+    for_each = can(var.identity) ? [var.identity] : []
+
+    content {
+      type         = identity.value.type
+      identity_ids = concat(identity.value.managed_identities, [])
+    }
   }
 
   dynamic "hostname_configuration" {
@@ -209,7 +225,7 @@ resource "azurerm_api_management" "apim" {
 resource "azurerm_api_management_named_value" "named_values" {
   for_each = { for named_value in var.named_values : named_value["name"] => named_value }
 
-  api_management_name = azurerm_api_management.apim.name
+  api_management_name = local.name
   display_name        = lookup(each.value, "display_name", lookup(each.value, "name"))
   name                = lookup(each.value, "name")
   resource_group_name = var.resource_group_name
@@ -225,7 +241,7 @@ resource "azurerm_api_management_product" "product" {
 
   product_id            = each.key
   resource_group_name   = var.resource_group_name
-  api_management_name   = azurerm_api_management.apim.name
+  api_management_name   = local.name
   display_name          = each.key
   subscription_required = true
   approval_required     = true
@@ -238,7 +254,7 @@ resource "azurerm_api_management_group" "group" {
 
   name                = each.key
   resource_group_name = var.resource_group_name
-  api_management_name = azurerm_api_management.apim.name
+  api_management_name = local.name
   display_name        = each.key
 }
 
@@ -247,7 +263,7 @@ resource "azurerm_api_management_product_group" "product_group" {
 
   product_id          = each.key
   resource_group_name = var.resource_group_name
-  api_management_name = azurerm_api_management.apim.name
+  api_management_name = local.name
   group_name          = each.key
 }
 
@@ -258,10 +274,10 @@ module "redis_cache" {
   source   = "./redis_cache"
   for_each = var.redis_cache_configuration
 
-  resource_group_name                        = local.resource_group_name
-  location                                   = local.location
-  tags                                       = local.tags
   name                                       = each.value.name
+  resource_group_name                        = var.resource_group_name
+  location                                   = var.location
+  tags                                       = var.tags
   capacity                                   = try(each.value.capacity, 1)
   sku_name                                   = try(each.value.sku_name, "Basic")
   shard_count                                = try(each.value.shard_count, 1)
@@ -286,7 +302,7 @@ resource "azurerm_api_management_redis_cache" "example" {
   for_each = module.redis_cache
 
   name              = each.value.redis_cache_instance_name
-  api_management_id = azurerm_api_management.apim.id
+  api_management_id = local.id
   connection_string = each.value.redis_cache_primary_connection_string
   description       = "Redis cache instance"
   redis_cache_id    = each.value.redis_cache_instance_id

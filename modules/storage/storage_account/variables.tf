@@ -1,45 +1,16 @@
-variable "create_resource_group" {
-  description = "Whether to create resource group and use it for all networking resources"
-  default     = false
-}
-
-variable "resource_group_name" {
-  description = "A container that holds related resources for an Azure solution"
-  default     = ""
-}
-
-variable "location" {
-  description = "The location/region to keep all your network resources. To get the list of all locations with table format from azure cli, run 'az account list-locations -o table'"
-  default     = ""
-}
-
-variable "tags" {
-  description = "A map of tags to add to all resources"
-  type        = map(string)
-  default     = {}
-}
-
 variable "name" {
   description = "(Required) Specifies the name of the storage account. Only lowercase Alphanumeric characters allowed."
   type        = string
 }
 
-variable "access_tier" {
-  description = "(Optional) Defines the access tier for BlobStorage, FileStorage and StorageV2 accounts. Valid options are Hot and Cool, defaults to Hot."
+variable "resource_group_name" {
+  description = "(Required) The name of the resource group in which to create the storage account. Changing this forces a new resource to be created."
   type        = string
-  default     = "Hot"
 }
 
-variable "account_kind" {
-  description = "(Optional) Defines the Kind of account. Valid options are BlobStorage, BlockBlobStorage, FileStorage, Storage and StorageV2."
+variable "location" {
+  description = "(Required) Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created."
   type        = string
-  default     = "StorageV2"
-}
-
-variable "account_replication_type" {
-  description = "(Required) Defines the type of replication to use for this storage account. Valid options are LRS, GRS, RAGRS, ZRS, GZRS and RAGZRS."
-  type        = string
-  default     = "LRS"
 }
 
 variable "account_tier" {
@@ -48,10 +19,34 @@ variable "account_tier" {
   default     = "Standard"
 }
 
+variable "account_replication_type" {
+  description = "(Required) Defines the type of replication to use for this storage account. Valid options are LRS, GRS, RAGRS, ZRS, GZRS and RAGZRS."
+  type        = string
+  default     = "LRS"
+}
+
+variable "account_kind" {
+  description = "(Optional) Defines the Kind of account. Valid options are BlobStorage, BlockBlobStorage, FileStorage, Storage and StorageV2."
+  type        = string
+  default     = "StorageV2"
+}
+
+variable "access_tier" {
+  description = "(Optional) Defines the access tier for BlobStorage, FileStorage and StorageV2 accounts. Valid options are Hot and Cool, defaults to Hot."
+  type        = string
+  default     = "Hot"
+}
+
 variable "enable_https_traffic_only" {
   description = "(Optional) Boolean flag which forces HTTPS if enabled, see here for more information. Defaults to true."
   type        = bool
   default     = true
+}
+
+variable "existing" {
+  description = "(Optional) Whether to reference an existing resource group."
+  default     = false
+  type        = bool
 }
 
 variable "infrastructure_encryption_enabled" {
@@ -93,6 +88,12 @@ variable "table_encryption_key_type" {
   description = "(Optional) The encryption type of the table service. Possible values are Service and Account."
   type        = string
   default     = null
+}
+
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  type        = map(string)
+  default     = {}
 }
 
 variable "custom_domain" {
@@ -163,10 +164,6 @@ variable "private_endpoints" {
   default = {}
 }
 
-variable "resource_groups" {
-  default = {}
-}
-
 variable "recovery_vaults" {
   default = {}
 }
@@ -180,13 +177,5 @@ variable "diagnostic_profiles" {
 }
 
 variable "diagnostics" {
-  default = {}
-}
-
-variable "managed_identities" {
-  default = {}
-}
-
-variable "virtual_subnets" {
   default = {}
 }

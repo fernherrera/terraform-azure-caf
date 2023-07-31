@@ -6,7 +6,7 @@ resource "azurerm_key_vault_secret" "secret" {
     if try(value.ignore_changes, false) == false
   }
 
-  key_vault_id    = azurerm_key_vault.keyvault.id
+  key_vault_id    = local.id
   name            = each.value.name
   value           = try(each.value.is_value_filepath, false) ? base64encode(file(each.value.value)) : each.value.value
   content_type    = try(each.value.content_type, null)
@@ -24,7 +24,7 @@ resource "azurerm_key_vault_secret" "secret_ignore_changes" {
     if try(value.ignore_changes, false) == true
   }
 
-  key_vault_id    = azurerm_key_vault.keyvault.id
+  key_vault_id    = local.id
   name            = each.value.name
   value           = try(each.value.is_value_filepath, false) ? base64encode(file(each.value.value)) : each.value.value
   content_type    = try(each.value.content_type, null)

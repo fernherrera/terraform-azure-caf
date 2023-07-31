@@ -17,32 +17,32 @@ variable "tags" {
 }
 
 variable "virtual_network_name" {
-  description = "The name of the virtual network"
+  description = "(Optional) The name of the virtual network"
   default     = ""
 }
 
 variable "vnet_resource_group_name" {
-  description = "The resource group name where the virtual network is created"
+  description = "(Optional) The resource group name where the virtual network is created"
   default     = null
 }
 
 variable "subnet_name" {
-  description = "The name of the subnet to use in VM scale set"
+  description = "(Optional) The name of the subnet to use in VM scale set"
   default     = ""
 }
 
 variable "log_analytics_workspace_name" {
-  description = "The name of log analytics workspace name"
+  description = "(Optional) The name of log analytics workspace name"
   default     = null
 }
 
 variable "storage_account_name" {
-  description = "The name of the hub storage account to store logs"
+  description = "(Optional) The name of the hub storage account to store logs"
   default     = null
 }
 
 variable "domain_name_label" {
-  description = "Label for the Domain Name. Will be used to make up the FQDN."
+  description = "(Optional) Label for the Domain Name. Will be used to make up the FQDN."
   default     = null
 }
 
@@ -312,33 +312,14 @@ variable "rewrite_rule_set" {
   default     = []
 }
 
-variable "waf_configuration" {
-  description = "Web Application Firewall support for your Azure Application Gateway"
-  type = object({
-    firewall_mode            = string
-    rule_set_version         = string
-    file_upload_limit_mb     = optional(number)
-    request_body_check       = optional(bool)
-    max_request_body_size_kb = optional(number)
-    disabled_rule_group = optional(list(object({
-      rule_group_name = string
-      rules           = optional(list(string))
-    })))
-    exclusion = optional(list(object({
-      match_variable          = string
-      selector_match_operator = optional(string)
-      selector                = optional(string)
-    })))
-  })
-  default = null
-}
-
 variable "agw_diag_logs" {
   description = "Application Gateway Monitoring Category details for Azure Diagnostic setting"
+  type        = list(string)
   default     = ["ApplicationGatewayAccessLog", "ApplicationGatewayPerformanceLog", "ApplicationGatewayFirewallLog"]
 }
 
 variable "pip_diag_logs" {
   description = "Load balancer Public IP Monitoring Category details for Azure Diagnostic setting"
+  type        = list(string)
   default     = ["DDoSProtectionNotifications", "DDoSMitigationFlowLogs", "DDoSMitigationReports"]
 }
