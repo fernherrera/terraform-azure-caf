@@ -275,7 +275,7 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
   }
 
   dynamic "identity" {
-    for_each = can(var.identity) ? [var.identity] : []
+    for_each = try(var.identity, null) != null ? [1] : []
 
     content {
       type         = identity.value.type
@@ -352,7 +352,7 @@ resource "azurerm_windows_virtual_machine" "win_vm" {
   }
 
   dynamic "identity" {
-    for_each = can(var.identity) ? [var.identity] : []
+    for_each = try(var.identity, null) != null ? [1] : []
 
     content {
       type         = identity.value.type

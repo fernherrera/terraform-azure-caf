@@ -56,7 +56,7 @@ module "api_management" {
   policy_configuration                    = try(each.value.policy_configuration, {})
   terms_of_service_configuration          = try(each.value.terms_of_service_configuration, [])
   security_configuration                  = try(each.value.security_configuration, {})
-  identity                                = try(local.api_management_managed_identities[each.key], {})
+  identity                                = try(local.api_management_managed_identities[each.key], null)
   named_values                            = try(each.value.named_values, [])
   products                                = try(each.value.products, [])
   create_product_group_and_relationships  = try(each.value.create_product_group_and_relationships, false)

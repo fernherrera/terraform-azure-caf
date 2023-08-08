@@ -26,7 +26,7 @@ variable "dns" {
 
 variable "identity" {
   description = "(Optional) An identity block."
-  default     = {}
+  default     = null
 }
 
 variable "insights" {

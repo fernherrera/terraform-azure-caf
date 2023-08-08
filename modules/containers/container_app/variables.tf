@@ -94,7 +94,7 @@ variable "dapr" {
 
 variable "identity" {
   description = "(Optional) An identity block."
-  default     = {}
+  default     = null
 }
 
 variable "ingress" {

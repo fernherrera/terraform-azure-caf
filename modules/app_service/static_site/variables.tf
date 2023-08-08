@@ -27,11 +27,7 @@ variable "sku_size" {
 
 variable "identity" {
   description = "(Optional) An identity block."
-  type = object({
-    type         = string
-    identity_ids = optional(list(string))
-  })
-  default = null
+  default     = null
 }
 
 variable "tags" {

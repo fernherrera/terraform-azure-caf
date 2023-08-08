@@ -202,7 +202,7 @@ resource "azurerm_application_gateway" "agw" {
   # Identity block Configuration (Optional)
   # A list with a single user managed identity id to be assigned
   dynamic "identity" {
-    for_each = can(var.identity) ? [var.identity] : []
+    for_each = try(var.identity, null) != null ? [1] : []
 
     content {
       type         = identity.value.type

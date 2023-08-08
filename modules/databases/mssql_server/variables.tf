@@ -56,7 +56,7 @@ variable "firewall_rules" {
 
 variable "identity" {
   description = "(Optional) An identity block."
-  default     = {}
+  default     = null
 }
 
 variable "minimum_tls_version" {

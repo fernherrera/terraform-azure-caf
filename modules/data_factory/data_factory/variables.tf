@@ -31,7 +31,7 @@ variable "diagnostics" {
 
 variable "identity" {
   description = "(Optional) An identity block."
-  default     = {}
+  default     = null
 }
 
 variable "resource_groups" {

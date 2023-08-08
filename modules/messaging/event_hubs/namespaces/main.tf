@@ -17,7 +17,7 @@ resource "azurerm_eventhub_namespace" "evh" {
   local_authentication_enabled  = try(var.local_authentication_enabled, null)
 
   dynamic "identity" {
-    for_each = can(var.identity) ? [var.identity] : []
+    for_each = try(var.identity, null) != null ? [1] : []
 
     content {
       type         = identity.value.type

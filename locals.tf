@@ -21,7 +21,7 @@ locals {
     inherit_tags       = try(var.global_settings.inherit_tags, false)
     passthrough        = try(var.global_settings.passthrough, false)
     prefix             = try(var.global_settings.prefix, null)
-    prefix_with_hyphen = try(var.global_settings.prefix_with_hyphen, format("%s-", try(var.global_settings.prefix, null)))
+    prefix_with_hyphen = try(var.global_settings.prefix_with_hyphen, format("%s-", try(var.global_settings.prefix, "")))
     regions            = try(var.global_settings.regions, null)
     tags               = try(var.global_settings.tags, null)
     use_slug           = try(var.global_settings.use_slug, true)

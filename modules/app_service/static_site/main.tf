@@ -10,11 +10,11 @@ resource "azurerm_static_site" "static_site" {
   sku_size            = try(var.sku_size, "Free")
 
   dynamic "identity" {
-    for_each = can(var.identity) ? [var.identity] : []
+    for_each = try(var.identity, null) != null ? [1] : []
 
     content {
-      type         = identity.value.type
-      identity_ids = concat(identity.value.managed_identities, [])
+      type         = var.identity.type
+      identity_ids = concat(var.identity.managed_identities, [])
     }
   }
 }

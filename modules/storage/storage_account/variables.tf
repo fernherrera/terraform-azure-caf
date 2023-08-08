@@ -105,7 +105,7 @@ variable "enable_system_msi" {
 }
 
 variable "identity" {
-  default = {}
+  default = null
 }
 
 variable "blob_properties" {

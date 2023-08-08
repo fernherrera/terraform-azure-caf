@@ -61,7 +61,7 @@ variable "high_availability" {
 
 variable "identity" {
   description = "(Optional) An identity block."
-  default     = {}
+  default     = null
 }
 
 variable "maintenance_window" {

@@ -66,7 +66,7 @@ module "mysql_servers" {
   delegated_subnet_id               = try(each.value.delegated_subnet_id, null)
   geo_redundant_backup_enabled      = try(each.value.geo_redundant_backup_enabled, false)
   high_availability                 = try(each.value.high_availability, {})
-  identity                          = try(local.mysql_flexible_servers_managed_identities[each.key], {})
+  identity                          = try(local.mysql_flexible_servers_managed_identities[each.key], null)
   maintenance_window                = try(each.value.maintenance_window, {})
   private_dns_zone_id               = try(each.value.private_dns_zone_id, null)
   replication_role                  = try(each.value.replication_role, null)

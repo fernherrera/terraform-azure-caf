@@ -682,7 +682,7 @@ variable "enable_ultra_ssd_data_disk_storage_support" {
 
 variable "identity" {
   description = "(Optional) An identity block."
-  default     = {}
+  default     = null
 }
 
 variable "winrm_protocol" {

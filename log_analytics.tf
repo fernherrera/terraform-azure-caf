@@ -55,7 +55,7 @@ module "log_analytics" {
 #----------------------------------------------------------
 module "log_analytics_diagnostics" {
   source   = "./modules/monitor/diagnostic_settings"
-  for_each = var.shared_services.log_analytics
+  for_each = local.shared_services.log_analytics
 
   target_resource_id = module.log_analytics[each.key].id
 

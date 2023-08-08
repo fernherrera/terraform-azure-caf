@@ -168,7 +168,7 @@ module "data_factory" {
 
   diagnostics         = try(each.value.diagnostics, null)
   diagnostic_profiles = try(each.value.diagnostic_profiles, {})
-  identity            = try(local.data_factory_managed_identities[each.key], {})
+  identity            = try(local.data_factory_managed_identities[each.key], null)
   resource_groups     = module.resource_groups
   virtual_subnets     = module.virtual_subnets
   private_endpoints   = try(each.value.private_endpoints, {})

@@ -32,7 +32,7 @@ variable "dedicated_cluster_id" {
 
 variable "identity" {
   description = "(Optional) An identity block"
-  default     = {}
+  default     = null
 }
 
 variable "maximum_throughput_units" {

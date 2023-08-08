@@ -83,7 +83,7 @@ module "linux_function_apps" {
   enabled                             = try(each.value.enabled, null)
   functions_extension_version         = try(each.value.functions_extension_version, null)
   https_only                          = try(each.value.https_only, null)
-  identity                            = try(local.linux_function_app_managed_identities[each.key], {})
+  identity                            = try(local.linux_function_app_managed_identities[each.key], null)
   key_vault_reference_identity_id     = try(each.value.key_vault_reference_identity_id, null)
   settings                            = merge(try(local.linux_function_app_settings_defaults, {}), try(each.value.settings, {}))
   storage_account_access_key          = can(each.value.storage_account_access_key) ? each.value.storage_account_access_key : module.storage_accounts[each.value.storage_account_key].primary_access_key

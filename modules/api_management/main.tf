@@ -91,7 +91,7 @@ resource "azurerm_api_management" "apim" {
   }
 
   dynamic "identity" {
-    for_each = can(var.identity) ? [var.identity] : []
+    for_each = try(var.identity, null) != null ? [1] : []
 
     content {
       type         = identity.value.type

@@ -36,5 +36,5 @@ module "static_sites" {
   tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
   sku_tier            = try(each.value.sku_tier, "Free")
   sku_size            = try(each.value.sku_size, "Free")
-  identity            = try(local.static_sites_managed_identities[each.key], {})
+  identity            = try(local.static_sites_managed_identities[each.key], null)
 }

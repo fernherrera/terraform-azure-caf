@@ -120,7 +120,7 @@ module "linux_web_apps" {
   connection_strings                  = try(each.value.connection_strings, {})
   enabled                             = try(each.value.enabled, null)
   https_only                          = try(each.value.https_only, null)
-  identity                            = try(local.linux_web_app_managed_identities[each.key], {})
+  identity                            = try(local.linux_web_app_managed_identities[each.key], null)
   key_vault_reference_identity_id     = try(each.value.key_vault_reference_identity_id, null)
   service_plan_id                     = can(each.value.app_service_plan_id) ? each.value.app_service_plan_id : module.app_service_plans[each.value.app_service_plan_key].id
   settings                            = merge(try(local.linux_web_app_settings_defaults, {}), try(each.value.settings, {}))

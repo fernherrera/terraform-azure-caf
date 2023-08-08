@@ -75,7 +75,7 @@ variable "https_only" {
 
 variable "identity" {
   description = "(Optional) An identity block."
-  default     = {}
+  default     = null
 }
 
 variable "key_vault_reference_identity_id" {

@@ -59,7 +59,7 @@ module "virtual_machines" {
   random_password_length           = try(each.value.random_password_length, null)
   generate_admin_ssh_key           = try(each.value.generate_admin_ssh_key, false)
   admin_ssh_key_data               = try(each.value.admin_ssh_key_data, null)
-  identity                         = try(local.virtual_machine_managed_identities[each.key], {})
+  identity                         = try(local.virtual_machine_managed_identities[each.key], null)
   key_vault_certificate_secret_url = try(each.value.key_vault_certificate_secret_url, null)
 
   # Networking

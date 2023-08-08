@@ -162,7 +162,7 @@ variable "redis_cache_configuration" {
 ### IDENTITY
 variable "identity" {
   description = "(Optional) An identity block."
-  default     = {}
+  default     = null
 }
 
 variable "named_values" {

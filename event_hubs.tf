@@ -135,7 +135,7 @@ module "event_hub_namespaces" {
   capacity                      = try(each.value.capacity, null)
   auto_inflate_enabled          = try(each.value.auto_inflate_enabled, null)
   dedicated_cluster_id          = try(each.value.dedicated_cluster_id, null)
-  identity                      = try(local.event_hub_namespaces_managed_identities[each.key], {})
+  identity                      = try(local.event_hub_namespaces_managed_identities[each.key], null)
   maximum_throughput_units      = try(each.value.maximum_throughput_units, null)
   zone_redundant                = try(each.value.zone_redundant, null)
   network_rulesets              = try(each.value.network_rulesets, {})

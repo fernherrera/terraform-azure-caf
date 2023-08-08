@@ -145,7 +145,7 @@ resource "azurerm_linux_function_app" "function_app" {
   }
 
   dynamic "identity" {
-    for_each = can(var.identity) ? [var.identity] : []
+    for_each = try(var.identity, null) != null ? [1] : []
 
     content {
       type         = identity.value.type

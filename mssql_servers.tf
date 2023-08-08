@@ -65,7 +65,7 @@ module "mssql_servers" {
   azuread_groups                               = local.combined_objects.azuread_groups
   connection_policy                            = try(each.value.connection_policy, null)
   firewall_rules                               = try(each.value.firewall_rules, {})
-  identity                                     = try(local.mssql_servers_managed_identities[each.key], {})
+  identity                                     = try(local.mssql_servers_managed_identities[each.key], null)
   minimum_tls_version                          = try(each.value.minimum_tls_version, null)
   outbound_network_restriction_enabled         = try(each.value.outbound_network_restriction_enabled, false)
   primary_user_assigned_identity_id            = try(each.value.primary_user_assigned_identity_id, null)

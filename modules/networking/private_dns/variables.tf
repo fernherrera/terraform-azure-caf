@@ -3,23 +3,23 @@ variable "name" {
   type        = string
 }
 
-variable "create_resource_group" {
-  description = "Whether to create resource group and use it for all networking resources"
-  default     = false
-}
-
 variable "resource_group_name" {
   description = "A container that holds related resources for an Azure solution"
-  default     = ""
+  type        = string
 }
 
 variable "location" {
   description = "The location/region to keep all your network resources. To get the list of all locations with table format from azure cli, run 'az account list-locations -o table'"
-  default     = ""
+  type        = string
+}
+
+variable "soa_record" {
+  description = "(Optional) An soa_record block. Changing this forces a new resource to be created."
+  default     = null
 }
 
 variable "tags" {
-  description = "A map of tags to add to all resources"
+  description = "(Optional) A mapping of tags to assign to the resource."
   type        = map(string)
   default     = {}
 }
@@ -31,8 +31,4 @@ variable "records" {
 variable "vnet_links" {
   description = "Configuration object - Private DNS Zone Virtual Network Links."
   default     = {}
-}
-
-variable "vnets" {
-  default = {}
 }

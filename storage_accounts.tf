@@ -65,7 +65,7 @@ module "storage_accounts" {
   data_lake_filesystems      = try(each.value.data_lake_filesystems, {})
   enable_system_msi          = try(each.value.enable_system_msi, {})
   file_shares                = try(each.value.file_shares, {})
-  identity                   = try(local.storage_accounts_managed_identities[each.key], {})
+  identity                   = try(local.storage_accounts_managed_identities[each.key], null)
   management_policies        = try(each.value.management_policies, {})
   network                    = try(each.value.network, {})
   private_endpoints          = try(each.value.private_endpoints, {})

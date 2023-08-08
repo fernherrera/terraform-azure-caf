@@ -120,7 +120,7 @@ variable "global" {
 
 variable "identity" {
   description = "(Optional) An identity block"
-  default     = {}
+  default     = null
 }
 
 variable "private_link_configuration" {
