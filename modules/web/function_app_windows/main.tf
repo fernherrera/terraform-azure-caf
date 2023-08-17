@@ -223,7 +223,7 @@ resource "azurerm_windows_function_app" "function_app" {
           virtual_network_subnet_id = lookup(var.settings.site_config.ip_restriction, "virtual_network_subnet_id", null)
           name                      = lookup(var.settings.site_config.ip_restriction, "name", null)
           priority                  = lookup(var.settings.site_config.ip_restriction, "priority", null)
-          action                    = lookup(var.settings.site_config.ip_restriction, "actuib", null)
+          action                    = lookup(var.settings.site_config.ip_restriction, "action", null)
 
 
           dynamic "headers" {
@@ -248,7 +248,7 @@ resource "azurerm_windows_function_app" "function_app" {
           virtual_network_subnet_id = lookup(var.settings.site_config.scm_ip_restriction, "virtual_network_subnet_id", null)
           name                      = lookup(var.settings.site_config.scm_ip_restriction, "name", null)
           priority                  = lookup(var.settings.site_config.scm_ip_restriction, "priority", null)
-          action                    = lookup(var.settings.site_config.scm_ip_restriction, "actuib", null)
+          action                    = lookup(var.settings.site_config.scm_ip_restriction, "action", null)
 
 
           dynamic "headers" {

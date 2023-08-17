@@ -6,7 +6,7 @@ module "mssql_databases" {
   tags = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
 
   cloud              = local.cloud
-  managed_identities = local.combined_objects.managed_identities
+  managed_identities = module.managed_identities
   settings           = each.value
   server_id          = can(each.value.server_id) ? each.value.server_id : module.mssql_servers[each.value.mssql_server_key].id
   server_name        = can(each.value.server_name) ? each.value.server_name : module.mssql_servers[each.value.mssql_server_key].name

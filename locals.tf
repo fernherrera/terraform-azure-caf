@@ -81,11 +81,6 @@ locals {
     virtual_machines = try(var.compute.virtual_machines, {})
   }
 
-  containers = {
-    container_app_environments = try(var.containers.container_app_environments, {})
-    container_apps             = try(var.containers.container_apps, {})
-  }
-
   database = {
     app_config               = try(var.database.app_config, {})
     mssql_databases          = try(var.database.mssql_databases, {})
@@ -186,13 +181,14 @@ locals {
   }
 
   web = {
-    app_insights          = try(var.web.app_insights, {})
-    app_services          = try(var.web.app_services, {})
-    app_service_plans     = try(var.web.app_service_plans, {})
-    linux_function_apps   = try(var.web.linux_function_apps, {})
-    linux_web_apps        = try(var.web.linux_web_apps, {})
-    static_sites          = try(var.web.static_sites, {})
-    windows_web_apps      = try(var.web.windows_web_apps, {})
-    windows_function_apps = try(var.web.windows_function_apps, {})
+    app_insights               = try(var.web.app_insights, {})
+    app_service_plans          = try(var.web.app_service_plans, {})
+    app_services_linux         = try(var.web.app_services_linux, {})
+    app_services_windows       = try(var.web.app_services_windows, {})
+    container_app_environments = try(var.web.container_app_environments, {})
+    container_apps             = try(var.web.container_apps, {})
+    function_apps_linux        = try(var.web.function_apps_linux, {})
+    function_apps_windows      = try(var.web.function_apps_windows, {})
+    static_sites               = try(var.web.static_sites, {})
   }
 }

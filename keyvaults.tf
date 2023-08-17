@@ -99,17 +99,17 @@ module "keyvault_access_policies" {
   for_each = local.security.keyvault_access_policies
 
   keyvault_key    = each.value.keyvault_key
-  keyvaults       = local.combined_objects.keyvaults
+  keyvaults       = module.keyvaults
   access_policies = each.value.access_policies
   client_config   = local.client_config
-  azuread_groups  = local.combined_objects.azuread_groups
+  azuread_groups  = {}
   resources = {
-    azuread_service_principals        = local.combined_objects.azuread_service_principals
-    diagnostic_storage_accounts       = local.combined_objects.diagnostic_storage_accounts
-    managed_identities                = local.combined_objects.managed_identities
-    mssql_managed_instances           = local.combined_objects.mssql_managed_instances
-    mssql_managed_instances_secondary = local.combined_objects.mssql_managed_instances_secondary
-    storage_accounts                  = local.combined_objects.storage_accounts
+    azuread_service_principals        = {}
+    diagnostic_storage_accounts       = {}
+    managed_identities                = module.managed_identities
+    mssql_managed_instances           = {}
+    mssql_managed_instances_secondary = {}
+    storage_accounts                  = module.storage_accounts
   }
 }
 
@@ -120,10 +120,10 @@ module "keyvault_access_policies_azuread_apps" {
   for_each = local.security.keyvault_access_policies_azuread_apps
 
   keyvault_key    = each.key
-  keyvaults       = local.combined_objects.keyvaults
+  keyvaults       = module.keyvaults
   access_policies = each.value
   client_config   = local.client_config
-  azuread_apps    = local.combined_objects.azuread_apps
+  azuread_apps    = {}
 }
 
 #--------------------------------------

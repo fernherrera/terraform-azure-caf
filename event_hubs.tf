@@ -144,7 +144,7 @@ module "event_hub_namespaces" {
   minimum_tls_version           = try(each.value.minimum_tls_version, null)
   auth_rules                    = try(each.value.auth_rules, {})
   event_hubs                    = try(each.value.event_hubs, {})
-  storage_accounts              = local.combined_objects.storage_accounts
+  storage_accounts              = module.storage_accounts
 }
 
 

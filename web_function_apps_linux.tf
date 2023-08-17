@@ -2,8 +2,8 @@
 # Locals declarations
 #----------------------------------------------------------
 locals {
-  # Default windows function app settings
-  windows_function_app_settings_defaults = {
+  # Default linux function app settings
+  linux_function_app_settings_defaults = {
     site_config = {
       always_on = false
       application_stack = {
@@ -14,11 +14,11 @@ locals {
   }
 
   # Managed identities
-  windows_function_app_managed_identities = {
+  linux_function_app_managed_identities = {
     for managed_identity in
     flatten(
       [
-        for sa_key, sa in local.web.windows_function_apps : {
+        for sa_key, sa in local.web.function_apps_linux : {
           sa_key = sa_key
           type   = try(sa.identity.type, "SystemAssigned")
           managed_identities = concat(
@@ -34,7 +34,7 @@ locals {
     ) : format("%s", managed_identity.sa_key) => managed_identity
   }
 
-  windows_function_app_diagnostics_defaults = {
+  linux_function_app_diagnostics_defaults = {
     name = "operational_logs_and_metrics"
     log = [
       {
@@ -60,11 +60,11 @@ locals {
 }
 
 #----------------------------------------------------------
-# Windows App Functions
+# Linux App Functions
 #----------------------------------------------------------
-module "windows_function_apps" {
-  source   = "./modules/app_service/windows_function_app"
-  for_each = local.web.windows_function_apps
+module "linux_function_apps" {
+  source   = "./modules/web/function_app_linux"
+  for_each = local.web.function_apps_linux
 
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
@@ -83,9 +83,9 @@ module "windows_function_apps" {
   enabled                             = try(each.value.enabled, null)
   functions_extension_version         = try(each.value.functions_extension_version, null)
   https_only                          = try(each.value.https_only, null)
-  identity                            = try(local.windows_function_app_managed_identities[each.key], null)
+  identity                            = try(local.linux_function_app_managed_identities[each.key], null)
   key_vault_reference_identity_id     = try(each.value.key_vault_reference_identity_id, null)
-  settings                            = merge(try(local.windows_function_app_settings_defaults, {}), try(each.value.settings, {}))
+  settings                            = merge(try(local.linux_function_app_settings_defaults, {}), try(each.value.settings, {}))
   storage_account_access_key          = can(each.value.storage_account_access_key) ? each.value.storage_account_access_key : module.storage_accounts[each.value.storage_account_key].primary_access_key
   storage_account_name                = can(each.value.storage_account_name) ? each.value.storage_account_name : module.storage_accounts[each.value.storage_account_key].name
   storage_uses_managed_identity       = try(each.value.storage_uses_managed_identity, null)
@@ -96,13 +96,13 @@ module "windows_function_apps" {
 }
 
 #--------------------------------------
-# Windows App Function Diagnostic settings
+# Linux App Function Diagnostic settings
 #--------------------------------------
-module "windows_function_apps_diagnostics" {
+module "linux_function_apps_diagnostics" {
   source   = "./modules/monitor/diagnostic_settings"
-  for_each = local.web.windows_function_apps
+  for_each = local.web.function_apps_linux
 
-  target_resource_id = module.windows_function_apps[each.key].id
+  target_resource_id = module.linux_function_apps[each.key].id
 
   eventhub_name                  = try(each.value.diagnostic_settings.eventhub_name, null)
   eventhub_authorization_rule_id = try(each.value.diagnostic_settings.eventhub_authorization_rule_id, null)

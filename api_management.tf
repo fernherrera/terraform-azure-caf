@@ -74,8 +74,8 @@ module "api_management_product" {
   source   = "./modules/api_management/product"
   for_each = local.apim.api_management_product
 
-  api_management_name   = can(each.value.api_management_name) ? each.value.api_management_name : try(local.combined_objects.api_management[each.value.api_management_key].name, null)
-  resource_group_name   = can(each.value.resource_group_name) ? each.value.resource_group_name : try(local.combined_objects.api_management[each.value.api_management_key].resource_group_name, null)
+  api_management_name   = can(each.value.api_management_name) ? each.value.api_management_name : try(module.api_management[each.value.api_management_key].name, null)
+  resource_group_name   = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.api_management[each.value.api_management_key].resource_group_name, null)
   product_id            = each.value.product_id
   display_name          = each.value.display_name
   approval_required     = each.value.approval_required
@@ -92,8 +92,8 @@ module "api_management_subscription" {
   source   = "./modules/api_management/subscription"
   for_each = local.apim.api_management_subscription
 
-  api_management_name = can(each.value.api_management_name) ? each.value.api_management_name : try(local.combined_objects.api_management[each.value.api_management_key].name, null)
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(local.combined_objects.api_management[each.value.api_management_key].resource_group_name, null)
+  api_management_name = can(each.value.api_management_name) ? each.value.api_management_name : try(module.api_management[each.value.api_management_key].name, null)
+  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.api_management[each.value.api_management_key].resource_group_name, null)
   display_name        = each.value.display_name
   product_id          = can(each.value.product_id) ? each.value.product_id : try(module.api_management_product[each.value.product_key].product_id, null)
   user_id             = try(each.value.user_id, null)

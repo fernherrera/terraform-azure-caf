@@ -23,7 +23,7 @@ locals {
     for managed_identity in
     flatten(
       [
-        for sa_key, sa in local.web.windows_web_apps : {
+        for sa_key, sa in local.web.app_services_windows : {
           sa_key = sa_key
           type   = try(sa.identity.type, "SystemAssigned")
           managed_identities = concat(
@@ -109,8 +109,8 @@ locals {
 # Windows App Services
 #----------------------------------------------------------
 module "windows_web_apps" {
-  source   = "./modules/app_service/windows_web_app"
-  for_each = local.web.windows_web_apps
+  source   = "./modules/web/app_service_windows"
+  for_each = local.web.app_services_windows
 
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
@@ -129,7 +129,7 @@ module "windows_web_apps" {
   key_vault_reference_identity_id     = try(each.value.key_vault_reference_identity_id, null)
   service_plan_id                     = can(each.value.app_service_plan_id) ? each.value.app_service_plan_id : module.app_service_plans[each.value.app_service_plan_key].id
   settings                            = merge(try(local.windows_web_app_settings_defaults, {}), try(each.value.settings, {}))
-  storage_accounts                    = try(local.combined_objects.storage_accounts, null)
+  storage_accounts                    = try(module.storage_accounts, null)
   zip_deploy_file                     = try(each.value.zip_deploy_file, null)
   virtual_network_integration_enabled = try(each.value.vnet_integration_enabled, false)
   virtual_network_subnet_id           = can(each.value.vnet_integration_enabled) && can(each.value.virtual_network_subnet_id) || can(each.value.vnet_key) == false ? try(each.value.subnet_id, null) : module.virtual_subnets[each.value.vnet_key].subnets[each.value.subnet_key].id
@@ -140,7 +140,7 @@ module "windows_web_apps" {
 #--------------------------------------
 module "windows_web_apps_diagnostics" {
   source   = "./modules/monitor/diagnostic_settings"
-  for_each = local.web.windows_web_apps
+  for_each = local.web.app_services_windows
 
   target_resource_id = module.windows_web_apps[each.key].id
 

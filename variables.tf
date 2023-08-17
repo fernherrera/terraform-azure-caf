@@ -109,12 +109,6 @@ variable "compute" {
   default     = {}
 }
 
-## Containers
-variable "containers" {
-  description = "Configuration object - Container resources"
-  default     = {}
-}
-
 ## Databases variables
 variable "database" {
   description = "Configuration object - databases resources"

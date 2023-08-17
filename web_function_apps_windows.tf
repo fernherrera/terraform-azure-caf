@@ -2,22 +2,23 @@
 # Locals declarations
 #----------------------------------------------------------
 locals {
-  # Default linux web app settings
-  linux_web_app_settings_defaults = {
+  # Default windows function app settings
+  windows_function_app_settings_defaults = {
     site_config = {
+      always_on = false
       application_stack = {
-        php_version = "8.1"
+        dotnet_version = "v6.0"
       }
-      ftps_state = "Disabled"
+      use_32_bit_worker = false
     }
   }
 
   # Managed identities
-  linux_web_app_managed_identities = {
+  windows_function_app_managed_identities = {
     for managed_identity in
     flatten(
       [
-        for sa_key, sa in local.web.linux_web_apps : {
+        for sa_key, sa in local.web.function_apps_windows : {
           sa_key = sa_key
           type   = try(sa.identity.type, "SystemAssigned")
           managed_identities = concat(
@@ -33,51 +34,11 @@ locals {
     ) : format("%s", managed_identity.sa_key) => managed_identity
   }
 
-  linux_web_app_diagnostics_defaults = {
+  windows_function_app_diagnostics_defaults = {
     name = "operational_logs_and_metrics"
     log = [
       {
-        name    = "AppServiceHTTPLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
-      },
-      {
-        name    = "AppServiceConsoleLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
-      },
-      {
-        name    = "AppServiceAppLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
-      },
-      {
-        name    = "AppServiceAuditLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
-      },
-      {
-        name    = "AppServiceIPSecAuditLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
-      },
-      {
-        name    = "AppServicePlatformLogs"
+        name    = "FunctionAppLogs"
         enabled = true
         retention_policy = {
           enabled = true
@@ -98,46 +59,50 @@ locals {
   }
 }
 
-
 #----------------------------------------------------------
-# Linux Web App Services
+# Windows App Functions
 #----------------------------------------------------------
-module "linux_web_apps" {
-  source   = "./modules/app_service/linux_web_app"
-  for_each = local.web.linux_web_apps
+module "windows_function_apps" {
+  source   = "./modules/web/function_app_windows"
+  for_each = local.web.function_apps_windows
 
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
   tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
 
-  application_insight                 = try(each.value.application_insight_key, null) == null ? null : module.application_insights[each.value.application_insight_key]
+  service_plan_id                     = can(each.value.app_service_plan_id) ? each.value.app_service_plan_id : module.app_service_plans[each.value.app_service_plan_key].id
   app_settings                        = try(each.value.app_settings, null)
-  client_affinity_enabled             = try(each.value.client_affinity_enabled, null)
+  builtin_logging_enabled             = try(each.value.builtin_logging_enabled, null)
   client_certificate_enabled          = try(each.value.client_certificate_enabled, null)
   client_certificate_mode             = try(each.value.client_certificate_mode, null)
   client_certificate_exclusion_paths  = try(each.value.client_certificate_exclusion_paths, null)
   connection_strings                  = try(each.value.connection_strings, {})
+  content_share_force_disabled        = try(each.value.content_share_force_disabled, null)
+  daily_memory_time_quota             = try(each.value.daily_memory_time_quota, 0)
   enabled                             = try(each.value.enabled, null)
+  functions_extension_version         = try(each.value.functions_extension_version, null)
   https_only                          = try(each.value.https_only, null)
-  identity                            = try(local.linux_web_app_managed_identities[each.key], null)
+  identity                            = try(local.windows_function_app_managed_identities[each.key], null)
   key_vault_reference_identity_id     = try(each.value.key_vault_reference_identity_id, null)
-  service_plan_id                     = can(each.value.app_service_plan_id) ? each.value.app_service_plan_id : module.app_service_plans[each.value.app_service_plan_key].id
-  settings                            = merge(try(local.linux_web_app_settings_defaults, {}), try(each.value.settings, {}))
-  storage_accounts                    = try(local.combined_objects.storage_accounts, null)
-  zip_deploy_file                     = try(each.value.zip_deploy_file, null)
+  settings                            = merge(try(local.windows_function_app_settings_defaults, {}), try(each.value.settings, {}))
+  storage_account_access_key          = can(each.value.storage_account_access_key) ? each.value.storage_account_access_key : module.storage_accounts[each.value.storage_account_key].primary_access_key
+  storage_account_name                = can(each.value.storage_account_name) ? each.value.storage_account_name : module.storage_accounts[each.value.storage_account_key].name
+  storage_uses_managed_identity       = try(each.value.storage_uses_managed_identity, null)
+  storage_key_vault_secret_id         = try(each.value.storage_key_vault_secret_id, null)
   virtual_network_integration_enabled = try(each.value.vnet_integration_enabled, false)
   virtual_network_subnet_id           = can(each.value.vnet_integration_enabled) && can(each.value.virtual_network_subnet_id) || can(each.value.vnet_key) == false ? try(each.value.subnet_id, null) : module.virtual_subnets[each.value.vnet_key].subnets[each.value.subnet_key].id
+  application_insight                 = try(each.value.application_insight_key, null) == null ? null : module.application_insights[each.value.application_insight_key]
 }
 
 #--------------------------------------
-# Linux Web App Diagnostic settings
+# Windows App Function Diagnostic settings
 #--------------------------------------
-module "linux_web_apps_diagnostics" {
+module "windows_function_apps_diagnostics" {
   source   = "./modules/monitor/diagnostic_settings"
-  for_each = local.web.linux_web_apps
+  for_each = local.web.function_apps_windows
 
-  target_resource_id = module.linux_web_apps[each.key].id
+  target_resource_id = module.windows_function_apps[each.key].id
 
   eventhub_name                  = try(each.value.diagnostic_settings.eventhub_name, null)
   eventhub_authorization_rule_id = try(each.value.diagnostic_settings.eventhub_authorization_rule_id, null)
@@ -148,8 +113,8 @@ module "linux_web_apps_diagnostics" {
   partner_solution_id = try(each.value.diagnostic_settings.partner_solution_id, null)
   storage_account_id  = try(each.value.diagnostic_settings.storage_account_id, null)
 
-  name        = try(each.value.diagnostic_settings.name, local.linux_web_app_diagnostics_defaults.name)
-  enabled_log = try(each.value.diagnostic_settings.enabled_log, local.linux_web_app_diagnostics_defaults.enabled_log, [])
-  log         = try(each.value.diagnostic_settings.log, local.linux_web_app_diagnostics_defaults.log, [])
-  metric      = try(each.value.diagnostic_settings.metric, local.linux_web_app_diagnostics_defaults.metric, [])
+  name        = try(each.value.diagnostic_settings.name, local.linux_function_app_diagnostics_defaults.name)
+  enabled_log = try(each.value.diagnostic_settings.enabled_log, local.linux_function_app_diagnostics_defaults.enabled_log, [])
+  log         = try(each.value.diagnostic_settings.log, local.linux_function_app_diagnostics_defaults.log, [])
+  metric      = try(each.value.diagnostic_settings.metric, local.linux_function_app_diagnostics_defaults.metric, [])
 }

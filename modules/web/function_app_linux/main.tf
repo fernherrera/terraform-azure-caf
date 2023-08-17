@@ -233,7 +233,7 @@ resource "azurerm_linux_function_app" "function_app" {
         for_each = lookup(var.settings.site_config, "ip_restriction", {}) != {} ? [1] : []
 
         content {
-          action                    = lookup(var.settings.site_config.ip_restriction, "actuib", null)
+          action                    = lookup(var.settings.site_config.ip_restriction, "action", null)
           ip_address                = lookup(var.settings.site_config.ip_restriction, "ip_address", null)
           name                      = lookup(var.settings.site_config.ip_restriction, "name", null)
           priority                  = lookup(var.settings.site_config.ip_restriction, "priority", null)
@@ -257,7 +257,7 @@ resource "azurerm_linux_function_app" "function_app" {
         for_each = lookup(var.settings.site_config, "scm_ip_restriction", {}) != {} ? [1] : []
 
         content {
-          action                    = lookup(var.settings.site_config.scm_ip_restriction, "actuib", null)
+          action                    = lookup(var.settings.site_config.scm_ip_restriction, "action", null)
           ip_address                = lookup(var.settings.site_config.scm_ip_restriction, "ip_address", null)
           name                      = lookup(var.settings.site_config.scm_ip_restriction, "name", null)
           priority                  = lookup(var.settings.site_config.scm_ip_restriction, "priority", null)

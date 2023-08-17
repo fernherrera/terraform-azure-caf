@@ -81,6 +81,6 @@ module "mysql_servers" {
   # resource_groups = module.resource_groups
   # virtual_subnets = module.virtual_subnets
   # private_endpoints = try(each.value.private_endpoints, {})
-  //private_dns       = try(data.azurerm_private_dns_zone.dns, {})
-  //storage_accounts = local.combined_objects.storage_accounts
+  //private_dns       = local.combined_objects.private_dns
+  //storage_accounts = module.storage_accounts
 }

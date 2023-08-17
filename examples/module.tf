@@ -19,7 +19,6 @@ module "example" {
   analysis_services = var.analysis_services
   apim              = var.apim
   compute           = var.compute
-  containers        = var.containers
   database          = var.database
   data_factory      = var.data_factory
   messaging         = var.messaging

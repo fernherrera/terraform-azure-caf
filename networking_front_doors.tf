@@ -64,5 +64,5 @@ module "cdn_frontdoors" {
   secrets                  = try(each.value.secrets, {})
   waf_policies             = try(each.value.waf_policies, {})
   security_policies        = try(each.value.security_policies, {})
-  key_vaults               = local.combined_objects.keyvaults
+  key_vaults               = module.keyvaults
 }

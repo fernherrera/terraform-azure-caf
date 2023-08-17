@@ -87,9 +87,9 @@ module "log_analytics_diagnostics" {
 #   primary_access_key  = each.value.storage_account.primary_access_key
 #   /*
 #   remote_objects = {
-#     resource_group  = local.combined_objects_resource_groups
-#     storage_account = local.combined_objects_storage_accounts
-#     log_analytics   = local.combined_objects_log_analytics
+#     resource_group  = module.resource_groups
+#     storage_account = module.storage_accounts
+#     log_analytics   = module.log_analytics
 #   }
 # */
 # }

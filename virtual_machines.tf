@@ -103,7 +103,7 @@ module "virtual_machines" {
   enable_boot_diagnostics                    = try(each.value.enable_boot_diagnostics, false)
   deploy_log_analytics_agent                 = try(each.value.deploy_log_analytics_agent, false)
   log_analytics_customer_id                  = try(each.value.log_analytics_customer_id, null)
-  log_analytics_workspace_id                 = can(each.value.log_analytics_workspace_id) ? try(each.value.log_analytics_workspace_id, null) : try(local.combined_objects.log_analytics[each.value.log_analytics_workspace_key].id, null)
+  log_analytics_workspace_id                 = can(each.value.log_analytics_workspace_id) ? try(each.value.log_analytics_workspace_id, null) : try(module.log_analytics[each.value.log_analytics_workspace_key].id, null)
   log_analytics_workspace_primary_shared_key = try(each.value.log_analytics_workspace_primary_shared_key, null)
   nsg_diag_logs                              = try(each.value.nsg_diag_logs, null)
 

@@ -326,7 +326,7 @@ resource "azurerm_linux_web_app" "web_app" {
           virtual_network_subnet_id = try(ip_restriction.value.virtual_network_subnet_id, null)
           name                      = try(ip_restriction.value.name, null)
           priority                  = try(ip_restriction.value.priority, null)
-          action                    = try(ip_restriction.value.actuib, null)
+          action                    = try(ip_restriction.value.action, null)
 
           dynamic "headers" {
             for_each = try(ip_restriction.value.headers, [])
@@ -350,7 +350,7 @@ resource "azurerm_linux_web_app" "web_app" {
           virtual_network_subnet_id = try(scm_ip_restriction.value.virtual_network_subnet_id, null)
           name                      = try(scm_ip_restriction.value.name, null)
           priority                  = try(scm_ip_restriction.value.priority, null)
-          action                    = try(scm_ip_restriction.value.actuib, null)
+          action                    = try(scm_ip_restriction.value.action, null)
 
           dynamic "headers" {
             for_each = try(scm_ip_restriction.value.headers, [])

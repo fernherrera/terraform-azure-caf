@@ -39,7 +39,7 @@
 | enable\_sign\_up | (Optional) Can users sign up on the development portal? | `bool` | `false` | no |
 | existing | (Optional) Whether to reference an existing resource group. | `bool` | `false` | no |
 | gateway\_disabled | (Optional) Disable the gateway in main region? This is only supported when `additional_location` is set. | `bool` | `false` | no |
-| identity | (Optional) An identity block. | `map` | `{}` | no |
+| identity | (Optional) An identity block. | `any` | `null` | no |
 | location | (Required) The Azure location where the API Management Service exists. | `string` | n/a | yes |
 | management\_hostname\_configuration | (Optional) List of management hostname configurations | `list(map(string))` | `[]` | no |
 | min\_api\_version | (Optional) The version which the control plane API calls to API Management service are limited with version equal to or newer than. | `string` | `null` | no |

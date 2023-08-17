@@ -40,14 +40,14 @@ This module allows you to create resources on Microsoft Azure, is used by the Cl
 | api\_management\_product | ./modules/api_management/product | n/a |
 | api\_management\_subscription | ./modules/api_management/subscription | n/a |
 | app\_service\_plan\_diagnostics | ./modules/monitor/diagnostic_settings | n/a |
-| app\_service\_plans | ./modules/app_service/service_plan | n/a |
+| app\_service\_plans | ./modules/web/app_service_plan | n/a |
 | application\_insights | ./modules/application_insights | n/a |
 | cdn\_frontdoors | ./modules/networking/cdn_frontdoor | n/a |
-| container\_app\_environment\_certificates | ./modules/containers/container_app/environment_certificate | n/a |
-| container\_app\_environment\_dapr\_components | ./modules/containers/container_app/environment_dapr_component | n/a |
-| container\_app\_environment\_storage | ./modules/containers/container_app/environment_storage | n/a |
-| container\_app\_environments | ./modules/containers/container_app/environment | n/a |
-| container\_apps | ./modules/containers/container_app | n/a |
+| container\_app\_environment\_certificates | ./modules/web/container_app/environment_certificate | n/a |
+| container\_app\_environment\_dapr\_components | ./modules/web/container_app/environment_dapr_component | n/a |
+| container\_app\_environment\_storage | ./modules/web/container_app/environment_storage | n/a |
+| container\_app\_environments | ./modules/web/container_app/environment | n/a |
+| container\_apps | ./modules/web/container_app | n/a |
 | data\_factory | ./modules/data_factory/data_factory | n/a |
 | data\_factory\_diagnostics | ./modules/monitor/diagnostic_settings | n/a |
 | data\_factory\_integration\_runtime\_azure\_ssis | ./modules/data_factory/data_factory_integration_runtime_azure_ssis | n/a |
@@ -71,9 +71,9 @@ This module allows you to create resources on Microsoft Azure, is used by the Cl
 | keyvault\_diagnostics | ./modules/monitor/diagnostic_settings | n/a |
 | keyvault\_private\_endpoints | ./modules/networking/private_endpoint | n/a |
 | keyvaults | ./modules/security/keyvault | n/a |
-| linux\_function\_apps | ./modules/app_service/linux_function_app | n/a |
+| linux\_function\_apps | ./modules/web/function_app_linux | n/a |
 | linux\_function\_apps\_diagnostics | ./modules/monitor/diagnostic_settings | n/a |
-| linux\_web\_apps | ./modules/app_service/linux_web_app | n/a |
+| linux\_web\_apps | ./modules/web/app_service_linux | n/a |
 | linux\_web\_apps\_diagnostics | ./modules/monitor/diagnostic_settings | n/a |
 | log\_analytics | ./modules/log_analytics | n/a |
 | log\_analytics\_diagnostics | ./modules/monitor/diagnostic_settings | n/a |
@@ -88,16 +88,16 @@ This module allows you to create resources on Microsoft Azure, is used by the Cl
 | private\_dns\_resolver | ./modules/networking/private_dns_resolver | n/a |
 | redis\_cache | ./modules/databases/redis_cache | n/a |
 | resource\_groups | ./modules/resource_group | n/a |
-| static\_sites | ./modules/app_service/static_site | n/a |
+| static\_sites | ./modules/web/static_site | n/a |
 | storage\_accounts | ./modules/storage/storage_account | n/a |
 | storage\_accounts\_private\_endpoints | ./modules/networking/private_endpoint | n/a |
 | storage\_syncs | ./modules/storage/storage_sync | n/a |
 | virtual\_machines | ./modules/compute/virtual_machine | n/a |
 | virtual\_networks | ./modules/networking/virtual_network | n/a |
 | virtual\_subnets | ./modules/networking/virtual_network/subnet | n/a |
-| windows\_function\_apps | ./modules/app_service/windows_function_app | n/a |
+| windows\_function\_apps | ./modules/web/function_app_windows | n/a |
 | windows\_function\_apps\_diagnostics | ./modules/monitor/diagnostic_settings | n/a |
-| windows\_web\_apps | ./modules/app_service/windows_web_app | n/a |
+| windows\_web\_apps | ./modules/web/app_service_windows | n/a |
 | windows\_web\_apps\_diagnostics | ./modules/monitor/diagnostic_settings | n/a |
 
 ## Resources
@@ -120,7 +120,6 @@ This module allows you to create resources on Microsoft Azure, is used by the Cl
 | client\_config | n/a | `map` | `{}` | no |
 | cloud | Configuration object - Cloud resources defaults to Azure public, allows you to switch to other Azure endpoints. | `map` | ```{ "acrLoginServerEndpoint": ".azurecr.io", "activeDirectory": "https://login.microsoftonline.com", "activeDirectoryDataLakeResourceId": "https://datalake.azure.net/", "activeDirectoryGraphResourceId": "https://graph.windows.net/", "activeDirectoryResourceId": "https://management.core.windows.net/", "appInsightsResourceId": "https://api.applicationinsights.io", "appInsightsTelemetryChannelResourceId": "https://dc.applicationinsights.azure.com/v2/track", "attestationEndpoint": ".attest.azure.net", "attestationResourceId": "https://attest.azure.net", "azmirrorStorageAccountResourceId": "null", "azureDatalakeAnalyticsCatalogAndJobEndpoint": "azuredatalakeanalytics.net", "azureDatalakeStoreFileSystemEndpoint": "azuredatalakestore.net", "batchResourceId": "https://batch.core.windows.net/", "gallery": "https://gallery.azure.com/", "keyvaultDns": ".vault.azure.net", "logAnalyticsResourceId": "https://api.loganalytics.io", "management": "https://management.core.windows.net/", "mariadbServerEndpoint": ".mariadb.database.azure.com", "mediaResourceId": "https://rest.media.azure.net", "mhsmDns": ".managedhsm.azure.net", "microsoftGraphResourceId": "https://graph.microsoft.com/", "mysqlServerEndpoint": ".mysql.database.azure.com", "ossrdbmsResourceId": "https://ossrdbms-aad.database.windows.net", "portal": "https://portal.azure.com", "postgresqlServerEndpoint": ".postgres.database.azure.com", "resourceManager": "https://management.azure.com/", "sqlManagement": "https://management.core.windows.net:8443/", "sqlServerHostname": ".database.windows.net", "storageEndpoint": "core.windows.net", "storageSyncEndpoint": "afs.azure.net", "synapseAnalyticsEndpoint": ".dev.azuresynapse.net", "synapseAnalyticsResourceId": "https://dev.azuresynapse.net", "vmImageAliasDoc": "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/master/arm-compute/quickstart-templates/aliases.json" }``` | no |
 | compute | Configuration object - Azure compute resources | `map` | `{}` | no |
-| containers | Configuration object - Container resources | `map` | `{}` | no |
 | data\_factory | Configuration object - Data Factory resources. | `map` | `{}` | no |
 | data\_sources | Data gathering for resources not managed by CAF Module | `map` | `{}` | no |
 | database | Configuration object - databases resources | `map` | `{}` | no |

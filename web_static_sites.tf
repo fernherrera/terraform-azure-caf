@@ -27,7 +27,7 @@ locals {
 # Static Sites
 #----------------------------------------------------------
 module "static_sites" {
-  source   = "./modules/app_service/static_site"
+  source   = "./modules/web/static_site"
   for_each = local.web.static_sites
 
   name                = each.value.name
@@ -37,4 +37,5 @@ module "static_sites" {
   sku_tier            = try(each.value.sku_tier, "Free")
   sku_size            = try(each.value.sku_size, "Free")
   identity            = try(local.static_sites_managed_identities[each.key], null)
+  custom_domains      = try(each.value.custom_domains, {})
 }

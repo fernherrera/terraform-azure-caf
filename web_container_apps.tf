@@ -6,7 +6,7 @@ locals {
   container_app_environment_certificates = {
     for cae_certificates in
     flatten([
-      for cae_key, cae in local.containers.container_app_environments : [
+      for cae_key, cae in local.web.container_app_environments : [
         for cert_key, cert in try(cae.certificates, {}) : {
           cae_key                      = cae_key
           cert_key                     = cert_key
@@ -24,7 +24,7 @@ locals {
   container_app_environment_dapr_components = {
     for dapr_components in
     flatten([
-      for cae_key, cae in local.containers.container_app_environments : [
+      for cae_key, cae in local.web.container_app_environments : [
         for dapr_key, dapr in try(cae.dapr_components, {}) : {
           cae_key                      = cae_key
           dapr_key                     = dapr_key
@@ -46,7 +46,7 @@ locals {
   container_app_environment_storage = {
     for storage in
     flatten([
-      for cae_key, cae in local.containers.container_app_environments : [
+      for cae_key, cae in local.web.container_app_environments : [
         for sa_key, sa in try(cae.storage, {}) : {
           cae_key                      = cae_key
           sa_key                       = sa_key
@@ -66,7 +66,7 @@ locals {
     for managed_identity in
     flatten(
       [
-        for sa_key, sa in local.web.linux_web_apps : {
+        for sa_key, sa in local.web.app_services_linux : {
           sa_key = sa_key
           type   = try(sa.identity.type, "SystemAssigned")
           managed_identities = concat(
@@ -151,8 +151,8 @@ locals {
 # Container App Environments
 #----------------------------------------------------------
 module "container_app_environments" {
-  source   = "./modules/containers/container_app/environment"
-  for_each = local.containers.container_app_environments
+  source   = "./modules/web/container_app/environment"
+  for_each = local.web.container_app_environments
 
   name                           = each.value.name
   resource_group_name            = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
@@ -167,7 +167,7 @@ module "container_app_environments" {
 # Container App Environment Certificates
 #----------------------------------------------------------
 module "container_app_environment_certificates" {
-  source   = "./modules/containers/container_app/environment_certificate"
+  source   = "./modules/web/container_app/environment_certificate"
   for_each = try(local.container_app_environment_certificates, {})
 
   depends_on = [module.container_app_environments]
@@ -183,7 +183,7 @@ module "container_app_environment_certificates" {
 # Container App Environment Dapr Components
 #----------------------------------------------------------
 module "container_app_environment_dapr_components" {
-  source   = "./modules/containers/container_app/environment_dapr_component"
+  source   = "./modules/web/container_app/environment_dapr_component"
   for_each = try(local.container_app_environment_dapr_components)
 
   depends_on = [module.container_app_environments]
@@ -203,7 +203,7 @@ module "container_app_environment_dapr_components" {
 # Container App Environment Storage
 #----------------------------------------------------------
 module "container_app_environment_storage" {
-  source   = "./modules/containers/container_app/environment_storage"
+  source   = "./modules/web/container_app/environment_storage"
   for_each = try(local.container_app_environment_storage, {})
 
   depends_on = [module.container_app_environments]
@@ -220,8 +220,8 @@ module "container_app_environment_storage" {
 # Container Apps
 #----------------------------------------------------------
 module "container_apps" {
-  source   = "./modules/containers/container_app"
-  for_each = local.containers.container_app_environments
+  source   = "./modules/web/container_app"
+  for_each = local.web.container_app_environments
 
   depends_on = [module.container_app_environments]
 

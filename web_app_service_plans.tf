@@ -21,7 +21,7 @@ locals {
 # App Service Plan 
 #--------------------------------------
 module "app_service_plans" {
-  source   = "./modules/app_service/service_plan"
+  source   = "./modules/web/app_service_plan"
   for_each = local.web.app_service_plans
 
   name                = each.value.name

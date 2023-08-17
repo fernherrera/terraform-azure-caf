@@ -62,7 +62,7 @@ module "mssql_servers" {
   administrator_login                          = try(each.value.administrator_login, null)
   administrator_login_password                 = try(each.value.administrator_login_password, null)
   azuread_administrator                        = try(each.value.azuread_administrator, {})
-  azuread_groups                               = local.combined_objects.azuread_groups
+  azuread_groups                               = {}
   connection_policy                            = try(each.value.connection_policy, null)
   firewall_rules                               = try(each.value.firewall_rules, {})
   identity                                     = try(local.mssql_servers_managed_identities[each.key], null)
@@ -75,12 +75,12 @@ module "mssql_servers" {
   virtual_network_rules                        = try(each.value.virtual_network_rules, {})
 
   private_endpoints = try(each.value.private_endpoints, {})
-  private_dns       = try(data.azurerm_private_dns_zone.dns, {})
-  # storage_accounts  = local.combined_objects.storage_accounts
-  # keyvault_id       = can(each.value.administrator_login_password) ? each.value.administrator_login_password : local.combined_objects.keyvaults[each.value.keyvault_key].id
+  private_dns       = local.combined_objects.private_dns
+  # storage_accounts  = module.storage_accounts
+  # keyvault_id       = can(each.value.administrator_login_password) ? each.value.administrator_login_password : module.keyvaults[each.value.keyvault_key].id
 
   # remote_objects = {
-  #   keyvault_keys = local.combined_objects.keyvault_keys
+  #   keyvault_keys = module.keyvault_keys
   # }
 }
 
@@ -135,8 +135,8 @@ module "mssql_servers_private_endpoints" {
 
 #   name                = each.value.name
 #   settings            = each.value.settings
-#   resource_group_name = can(each.value.resource_group.name) || can(each.value.resource_group_name) ? try(each.value.resource_group.name, each.value.resource_group_name) : local.combined_objects.resource_groups[try(each.value.resource_group_key, each.value.resource_group.key)].name
+#   resource_group_name = can(each.value.resource_group.name) || can(each.value.resource_group_name) ? try(each.value.resource_group.name, each.value.resource_group_name) : module.resource_groups[try(each.value.resource_group_key, each.value.resource_group.key)].name
 #   primary_server_name = module.mssql_servers[each.value.primary_server.sql_server_key].name
 #   secondary_server_id = module.mssql_servers[each.value.secondary_server.sql_server_key].id
-#   databases           = local.combined_objects.mssql_databases
+#   databases           = module.mssql_databases
 # }
