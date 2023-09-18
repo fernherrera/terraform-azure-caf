@@ -160,10 +160,6 @@ variable "backup" {
   default = null
 }
 
-variable "private_endpoints" {
-  default = {}
-}
-
 variable "recovery_vaults" {
   default = {}
 }

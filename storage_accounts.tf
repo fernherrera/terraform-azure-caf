@@ -68,7 +68,6 @@ module "storage_accounts" {
   identity                   = try(local.storage_accounts_managed_identities[each.key], null)
   management_policies        = try(each.value.management_policies, {})
   network                    = try(each.value.network, {})
-  private_endpoints          = try(each.value.private_endpoints, {})
   queues                     = try(each.value.queues, {})
   routing                    = try(each.value.routing, {})
   recovery_vaults            = try(each.value.recovery_vaults, {})

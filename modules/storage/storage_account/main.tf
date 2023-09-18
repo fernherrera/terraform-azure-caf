@@ -71,7 +71,7 @@ resource "azurerm_storage_account" "stg" {
       last_access_time_enabled = try(var.blob_properties.last_access_time_enabled, false)
 
       dynamic "cors_rule" {
-        for_each = lookup(var.blob_properties, "cors_rule", false) == false ? [] : [1]
+        for_each = try(var.blob_properties.cors_rule, false) == false ? [] : [1]
 
         content {
           allowed_headers    = var.blob_properties.cors_rule.allowed_headers
@@ -83,7 +83,7 @@ resource "azurerm_storage_account" "stg" {
       }
 
       dynamic "delete_retention_policy" {
-        for_each = lookup(var.blob_properties, "delete_retention_policy", false) == false ? [] : [1]
+        for_each = try(var.blob_properties.delete_retention_policy, false) == false ? [] : [1]
 
         content {
           days = try(var.blob_properties.delete_retention_policy.delete_retention_policy, 7)
@@ -91,7 +91,7 @@ resource "azurerm_storage_account" "stg" {
       }
 
       dynamic "container_delete_retention_policy" {
-        for_each = lookup(var.blob_properties, "container_delete_retention_policy", false) == false ? [] : [1]
+        for_each = try(var.blob_properties.container_delete_retention_policy, false) == false ? [] : [1]
 
         content {
           days = try(var.blob_properties.container_delete_retention_policy.container_delete_retention_policy, 7)
@@ -105,7 +105,7 @@ resource "azurerm_storage_account" "stg" {
 
     content {
       dynamic "cors_rule" {
-        for_each = lookup(var.queue_properties, "cors_rule", false) == false ? [] : [1]
+        for_each = try(var.queue_properties.cors_rule, false) == false ? [] : [1]
 
         content {
           allowed_headers    = var.queue_properties.cors_rule.allowed_headers
@@ -117,7 +117,7 @@ resource "azurerm_storage_account" "stg" {
       }
 
       dynamic "logging" {
-        for_each = lookup(var.queue_properties, "logging", false) == false ? [] : [1]
+        for_each = try(var.queue_properties.logging, false) == false ? [] : [1]
 
         content {
           delete                = var.queue_properties.logging.delete
@@ -129,7 +129,7 @@ resource "azurerm_storage_account" "stg" {
       }
 
       dynamic "minute_metrics" {
-        for_each = lookup(var.queue_properties, "minute_metrics", false) == false ? [] : [1]
+        for_each = try(var.queue_properties.minute_metrics, false) == false ? [] : [1]
 
         content {
           enabled               = var.queue_properties.minute_metrics.enabled
@@ -140,7 +140,7 @@ resource "azurerm_storage_account" "stg" {
       }
 
       dynamic "hour_metrics" {
-        for_each = lookup(var.queue_properties, "hour_metrics", false) == false ? [] : [1]
+        for_each = try(var.queue_properties.hour_metrics, false) == false ? [] : [1]
 
         content {
           enabled               = var.queue_properties.hour_metrics.enabled
@@ -181,7 +181,7 @@ resource "azurerm_storage_account" "stg" {
       directory_type = var.azure_files_authentication.directory_type
 
       dynamic "active_directory" {
-        for_each = lookup(var.azure_files_authentication, "active_directory", false) == false ? [] : [1]
+        for_each = try(var.azure_files_authentication.active_directory, false) == false ? [] : [1]
 
         content {
           storage_sid         = var.azure_files_authentication.active_directory.storage_sid
