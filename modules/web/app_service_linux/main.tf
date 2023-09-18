@@ -281,7 +281,6 @@ resource "azurerm_linux_web_app" "web_app" {
                   interval          = lookup(var.settings.site_config.auto_heal_setting.trigger.status_code, "interval", null)
                   status_code_range = lookup(var.settings.site_config.auto_heal_setting.trigger.status_code, "status_code_range", null)
                   sub_status        = lookup(var.settings.site_config.auto_heal_setting.trigger.status_code, "sub_status", null)
-                  win32_status      = lookup(var.settings.site_config.auto_heal_setting.trigger.status_code, "win32_status", null)
                   path              = lookup(var.settings.site_config.auto_heal_setting.trigger.status_code, "path", null)
                 }
               }

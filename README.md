@@ -123,8 +123,7 @@ This module allows you to create resources on Microsoft Azure, is used by the Cl
 | data\_factory | Configuration object - Data Factory resources. | `map` | `{}` | no |
 | data\_sources | Data gathering for resources not managed by CAF Module | `map` | `{}` | no |
 | database | Configuration object - databases resources | `map` | `{}` | no |
-| environment | Name of the LZ environment. | `string` | `"dev"` | no |
-| global\_settings | Global settings object for the current deployment. | `map` | ```{ "default_region": "region1", "passthrough": false, "regions": { "region1": "eastus", "region2": "westus" } }``` | no |
+| global\_settings | Global settings object for the current deployment. | `map` | ```{ "default_region": "region1", "environment": "sbx", "passthrough": false, "regions": { "region1": "eastus", "region2": "westus" } }``` | no |
 | messaging | Configuration object - messaging resources | `map` | `{}` | no |
 | networking | Configuration object - networking resources | `map` | `{}` | no |
 | remote\_objects | Allow the landing zone to retrieve remote tfstate objects and pass them to the CAF module. | `map` | `{}` | no |
@@ -134,6 +133,5 @@ This module allows you to create resources on Microsoft Azure, is used by the Cl
 | storage | Configuration object - Storage resources | `map` | `{}` | no |
 | subscription\_id\_connectivity | Sets the Subscription ID to use for Connectivity resources. | `string` | `""` | no |
 | subscription\_id\_management | Sets the Subscription ID to use for Management resources. | `string` | `""` | no |
-| tags | A map of tags to add to all resources | `map(string)` | `{}` | no |
 | web | Configuration object - Web Applications | `map` | `{}` | no |
 <!-- END_TF_DOCS -->

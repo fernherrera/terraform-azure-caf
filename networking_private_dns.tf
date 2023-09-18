@@ -62,7 +62,7 @@ locals {
             name                 = try(pl.name, z.name, "")
             registration_enabled = try(pl.registration_enabled, false)
             virtual_network_id   = try(pl.virtual_network_id, try(module.virtual_networks[pl.vnet_key].id), null)
-            tags                 = merge(var.tags, try(pl.tags, null))
+            tags                 = merge(try(pl.tags, null))
           }
         ]
       ]
@@ -82,7 +82,7 @@ module "private_dns" {
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
+  tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
   soa_record          = try(each.value.soa_record, null)
   records             = try(each.value.records, {})
   vnet_links          = try(local.private_dns_zones_virtual_network_links, {})

@@ -8,8 +8,6 @@ module "example" {
 
   global_settings = var.global_settings
   client_config   = var.client_config
-  environment     = var.environment
-  tags            = local.tags
 
   # # Defaulted, you can declare an override if you dont target Azure public
   # cloud = var.cloud

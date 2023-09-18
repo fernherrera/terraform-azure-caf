@@ -19,6 +19,7 @@ variable "subscription_id_management" {
 variable "global_settings" {
   description = "Global settings object for the current deployment."
   default = {
+    environment    = "sbx"
     passthrough    = false
     default_region = "region1"
     regions = {
@@ -74,18 +75,6 @@ variable "cloud" {
 
 variable "data_sources" {
   description = "Data gathering for resources not managed by CAF Module"
-  default     = {}
-}
-
-variable "environment" {
-  description = "Name of the LZ environment."
-  type        = string
-  default     = "dev"
-}
-
-variable "tags" {
-  description = "A map of tags to add to all resources"
-  type        = map(string)
   default     = {}
 }
 

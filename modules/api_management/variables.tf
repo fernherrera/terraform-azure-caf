@@ -101,34 +101,9 @@ variable "enable_sign_up" {
   default     = false
 }
 
-variable "management_hostname_configuration" {
-  description = "(Optional) List of management hostname configurations"
-  type        = list(map(string))
-  default     = []
-}
-
-variable "scm_hostname_configuration" {
-  description = "(Optional) List of scm hostname configurations"
-  type        = list(map(string))
-  default     = []
-}
-
-variable "proxy_hostname_configuration" {
-  description = "(Optional) List of proxy hostname configurations"
-  type        = list(map(string))
-  default     = []
-}
-
-variable "portal_hostname_configuration" {
-  description = "(Optional) Legacy portal hostname configurations"
-  type        = list(map(string))
-  default     = []
-}
-
-variable "developer_portal_hostname_configuration" {
-  description = "(Optional) Developer portal hostname configurations"
-  type        = list(map(string))
-  default     = []
+variable "custom_domains" {
+  description = "List of API Management Custom Domains configurations"
+  default     = {}
 }
 
 variable "policy_configuration" {
@@ -137,7 +112,7 @@ variable "policy_configuration" {
   default     = {}
 }
 
-variable "terms_of_service_configuration" {
+variable "terms_of_service" {
   description = "(Optional) Map of terms of service configuration"
   type        = list(map(string))
   nullable    = false
@@ -148,7 +123,7 @@ variable "terms_of_service_configuration" {
   }]
 }
 
-variable "security_configuration" {
+variable "security" {
   description = "(Optional) Map of security configuration"
   type        = map(string)
   default     = {}
@@ -159,7 +134,6 @@ variable "redis_cache_configuration" {
   default     = {}
 }
 
-### IDENTITY
 variable "identity" {
   description = "(Optional) An identity block."
   default     = null
@@ -171,20 +145,6 @@ variable "named_values" {
   default     = []
 }
 
-variable "products" {
-  description = "(Optional) List of products to create"
-  type        = list(string)
-  default     = []
-}
-
-variable "create_product_group_and_relationships" {
-  description = "(Optional) Create local APIM groups with name identical to products and create a relationship between groups and products"
-  type        = bool
-  default     = false
-}
-
-### NETWORKING
-
 variable "virtual_network_type" {
   description = "(Optional) The type of virtual network you want to use, valid values include: None, External, Internal."
   type        = string
@@ -192,10 +152,6 @@ variable "virtual_network_type" {
 }
 
 variable "virtual_network_configuration" {
-  description = "(Optional) The id(s) of the subnet(s) that will be used for the API Management. Required when virtual_network_type is External or Internal"
+  description = "(Optional) The id(s) of the subnet(s) that will be used for the API Management. Required when virtual_network_type is External or Internal."
   default     = null
-}
-
-variable "subnets" {
-  description = "Virtual subnet networks configuration object"
 }

@@ -14,6 +14,12 @@ variable "sku" {
   description = "(Required) Defines which tier to use. Valid options are Basic, Standard, and Premium. Please note that setting this field to Premium will force the creation of a new resource."
 }
 
+variable "existing" {
+  description = "(Optional) Whether to reference an existing resource group."
+  default     = false
+  type        = bool
+}
+
 variable "capacity" {
   description = "(Optional) Specifies the Capacity / Throughput Units for a Standard SKU namespace. Default capacity has a maximum of 2, but can be increased in blocks of 2 on a committed purchase basis. Defaults to 1."
   default     = null

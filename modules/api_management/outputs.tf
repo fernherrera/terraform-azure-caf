@@ -1,11 +1,11 @@
-output "api_management_name" {
-  description = "The name of the API Management Service"
-  value       = local.name
-}
-
 output "api_management_id" {
   description = "The ID of the API Management Service"
   value       = local.id
+}
+
+output "api_management_name" {
+  description = "The name of the API Management Service"
+  value       = local.name
 }
 
 output "api_management_additional_location" {

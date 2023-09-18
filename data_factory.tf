@@ -164,7 +164,7 @@ module "data_factory" {
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
+  tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
   diagnostics         = try(each.value.diagnostics, null)
   diagnostic_profiles = try(each.value.diagnostic_profiles, {})
@@ -230,7 +230,7 @@ module "data_factory_pipeline" {
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
+  tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
   data_factory_id = can(each.value.data_factory.id) ? each.value.data_factory.id : module.data_factory[try(each.value.data_factory.key, each.value.data_factory_key)].id
   settings        = each.value
@@ -246,7 +246,7 @@ module "data_factory_trigger_schedule" {
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
+  tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
   data_factory_id = can(each.value.data_factory.id) ? each.value.data_factory.id : module.data_factory[try(each.value.data_factory.key, each.value.data_factory_key)].id
   pipeline_name   = can(each.value.data_factory_pipeline.name) ? each.value.data_factory_pipeline.name : module.data_factory_pipeline[each.value.data_factory_pipeline.key].name
@@ -263,7 +263,7 @@ module "data_factory_integration_runtime_self_hosted" {
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
+  tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
   data_factory_id = can(each.value.data_factory.id) ? each.value.data_factory.id : module.data_factory[try(each.value.data_factory.key, each.value.data_factory_key)].id
 }
@@ -278,7 +278,7 @@ module "data_factory_integration_runtime_azure_ssis" {
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
+  tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
   data_factory_id = can(each.value.data_factory.id) ? each.value.data_factory.id : module.data_factory[try(each.value.data_factory.key, each.value.data_factory_key)].id
   settings        = each.value

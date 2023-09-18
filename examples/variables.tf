@@ -19,6 +19,7 @@ variable "subscription_id_management" {
 variable "global_settings" {
   description = "Global settings object for the current deployment."
   default = {
+    environment    = "sbx"
     passthrough    = false
     default_region = "region1"
     regions = {
@@ -30,18 +31,6 @@ variable "global_settings" {
 
 variable "client_config" {
   default = {}
-}
-
-variable "environment" {
-  description = "Name of the LZ environment."
-  type        = string
-  default     = "sbx"
-}
-
-variable "tags" {
-  description = "A map of tags to add to all resources"
-  type        = map(string)
-  default     = {}
 }
 
 ## Cloud variables

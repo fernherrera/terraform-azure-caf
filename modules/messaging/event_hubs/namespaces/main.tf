@@ -1,7 +1,24 @@
+#-------------------------------
+# Local Declarations
+#-------------------------------
+locals {
+  id   = element(coalescelist(data.azurerm_eventhub_namespace.evh_e.*.id, azurerm_eventhub_namespace.evh.*.id, [""]), 0)
+  name = element(coalescelist(data.azurerm_eventhub_namespace.evh_e.*.name, azurerm_eventhub_namespace.evh.*.name, [""]), 0)
+}
+
 #--------------------------------------
 # Event Hub Namespaces
 #--------------------------------------
+data "azurerm_eventhub_namespace" "evh_e" {
+  count = var.existing == true ? 1 : 0
+
+  name                = var.name
+  resource_group_name = var.resource_group_name
+}
+
 resource "azurerm_eventhub_namespace" "evh" {
+  count = var.existing == false ? 1 : 0
+
   name                          = var.name
   location                      = var.location
   resource_group_name           = var.resource_group_name
@@ -51,5 +68,4 @@ resource "azurerm_eventhub_namespace" "evh" {
       }
     }
   }
-
 }

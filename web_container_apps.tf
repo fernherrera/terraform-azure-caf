@@ -157,7 +157,7 @@ module "container_app_environments" {
   name                           = each.value.name
   resource_group_name            = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location                       = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                           = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
+  tags                           = merge(try(each.value.tags, {}), local.global_settings.tags)
   log_analytics_workspace_id     = can(each.value.log_analytics_workspace_id) ? each.value.log_analytics_workspace_id : try(module.log_analytics[each.value.log_analytics_workspace_key].id, null)
   infrastructure_subnet_id       = can(each.value.infrastructure_subnet_id) ? each.value.infrastructure_subnet_id : try(module.virtual_subnets[each.value.infrastructure_vnet_key].subnets[each.value.infrastructure_subnet_key].id, null)
   internal_load_balancer_enabled = try(each.value.internal_load_balancer_enabled, null)
@@ -228,7 +228,7 @@ module "container_apps" {
   name                         = each.value.name
   resource_group_name          = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   container_app_environment_id = can(each.value.container_app_environment_id) ? each.value.container_app_environment_id : try(module.container_app_environments[each.value.container_app_environment_key].id, null)
-  tags                         = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
+  tags                         = merge(try(each.value.tags, {}), local.global_settings.tags)
   revision_mode                = each.value.revision_mode
   template                     = each.value.template
   dapr                         = try(each.value.dapr, {})

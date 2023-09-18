@@ -17,7 +17,7 @@ locals {
   # Global Settings
   global_settings = merge({
     default_region     = try(var.global_settings.default_region, "region1")
-    environment        = try(var.global_settings.environment, var.environment)
+    environment        = try(var.global_settings.environment, "sbx")
     inherit_tags       = try(var.global_settings.inherit_tags, false)
     passthrough        = try(var.global_settings.passthrough, false)
     prefix             = try(var.global_settings.prefix, null)

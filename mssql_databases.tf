@@ -3,7 +3,7 @@ module "mssql_databases" {
   for_each = local.database.mssql_databases
 
   name = each.value.name
-  tags = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
+  tags = merge(try(each.value.tags, {}), local.global_settings.tags)
 
   cloud              = local.cloud
   managed_identities = module.managed_identities

@@ -28,7 +28,7 @@ module "frontdoors" {
   frontdoor_name      = each.value.frontdoor_name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
+  tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
   friendly_name                   = try(each.value.friendly_name, "")
   backend_pools                   = try(each.value.backend_pools, [])
@@ -52,7 +52,7 @@ module "cdn_frontdoors" {
 
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
-  tags                = merge(lookup(each.value, "tags", {}), try(var.tags, {}), )
+  tags                = merge(lookup(each.value, "tags", {}), try({}), )
 
   sku_name                 = each.value.sku_name
   response_timeout_seconds = try(each.value.response_timeout_seconds, 120)

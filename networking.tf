@@ -11,7 +11,7 @@ module "virtual_networks" {
 
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
-  tags                = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
+  tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
   create_resource_group          = try(each.value.create_resource_group, false)
   vnetwork_name                  = try(each.value.vnetwork_name, null)
@@ -40,5 +40,5 @@ module "virtual_subnets" {
   resource_group_name  = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   virtual_network_name = each.value.virtual_network_name
   subnets              = try(each.value.subnets, {})
-  tags                 = merge(try(each.value.tags, {}), var.tags, local.global_settings.tags)
+  tags                 = merge(try(each.value.tags, {}), local.global_settings.tags)
 }

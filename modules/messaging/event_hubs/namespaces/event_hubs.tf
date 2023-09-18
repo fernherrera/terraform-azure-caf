@@ -3,7 +3,7 @@ module "event_hubs" {
   for_each = try(var.event_hubs, {})
 
   name                = each.value.name
-  namespace_name      = azurerm_eventhub_namespace.evh.name
+  namespace_name      = local.name
   resource_group_name = var.resource_group_name
   partition_count     = each.value.partition_count
   message_retention   = each.value.message_retention
