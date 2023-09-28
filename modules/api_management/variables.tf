@@ -34,11 +34,13 @@ variable "sku_name" {
 variable "publisher_name" {
   description = "(Required) The name of publisher/company."
   type        = string
+  default     = ""
 }
 
 variable "publisher_email" {
   description = "(Required) The email of publisher/company."
   type        = string
+  default     = ""
 }
 
 variable "additional_location" {

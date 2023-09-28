@@ -34,78 +34,79 @@ locals {
     ) : format("%s", vnet_config.apim_key) => vnet_config
   }
 
-  apim_custom_domains_gateway = try({
-    for gateway in
-    flatten(
-      [
-        for k, domain in local.apim.api_management.custom_domains.gateway : merge({
-          key          = k
-          key_vault_id = try(domain.key_vault_id, module.keyvaults[domain.key_vault_key].certificates[domain.key_vault_cert_key].versionless_secret_id, null)
-          },
-        domain)
-      ]
-    ) : gateway.key => gateway
-  }, null)
+  apim_custom_domains = {
+    for key, val in var.apim : key => {
+      custom_domains = {
 
-  apim_custom_domains_developer_portal = try({
-    for developer_portal in
-    flatten(
-      [
-        for k, domain in local.apim.api_management.custom_domains.developer_portal : merge({
-          key          = k
-          key_vault_id = try(domain.key_vault_id, module.keyvaults[domain.key_vault_key].certificates[domain.key_vault_cert_key].versionless_secret_id, null)
-          },
-        domain)
-      ]
-    ) : developer_portal.key => developer_portal
-  }, null)
+        gateway = try({
+          for gateway in
+          flatten(
+            [
+              for k, domain in val.custom_domains.gateway : merge({
+                key          = k
+                key_vault_id = try(domain.key_vault_id, module.keyvaults[domain.key_vault_key].certificates[domain.key_vault_cert_key].versionless_secret_id, null)
+                },
+              domain)
+            ]
+          ) : gateway.key => gateway
+        }, null)
 
-  apim_custom_domains_management = try({
-    for management in
-    flatten(
-      [
-        for k, domain in local.apim.api_management.custom_domains.management : merge({
-          key          = k
-          key_vault_id = try(domain.key_vault_id, module.keyvaults[domain.key_vault_key].certificates[domain.key_vault_cert_key].versionless_secret_id, null)
-          },
-        domain)
-      ]
-    ) : management.key => management
-  }, null)
+        developer_portal = try({
+          for developer_portal in
+          flatten(
+            [
+              for k, domain in val.custom_domains.developer_portal : merge({
+                key          = k
+                key_vault_id = try(domain.key_vault_id, module.keyvaults[domain.key_vault_key].certificates[domain.key_vault_cert_key].versionless_secret_id, null)
+                },
+              domain)
+            ]
+          ) : developer_portal.key => developer_portal
+        }, null)
 
-  apim_custom_domains_portal = try({
-    for portal in
-    flatten(
-      [
-        for k, domain in local.apim.api_management.custom_domains.portal : merge({
-          key          = k
-          key_vault_id = try(domain.key_vault_id, module.keyvaults[domain.key_vault_key].certificates[domain.key_vault_cert_key].versionless_secret_id, null)
-          },
-        domain)
-      ]
-    ) : portal.key => portal
-  }, null)
+        management = try({
+          for management in
+          flatten(
+            [
+              for k, domain in val.custom_domains.management : merge({
+                key          = k
+                key_vault_id = try(domain.key_vault_id, module.keyvaults[domain.key_vault_key].certificates[domain.key_vault_cert_key].versionless_secret_id, null)
+                },
+              domain)
+            ]
+          ) : management.key => management
+        }, null)
 
-  apim_custom_domains_scm = try({
-    for scm in
-    flatten(
-      [
-        for k, domain in local.apim.api_management.custom_domains.scm : merge({
-          key          = k
-          key_vault_id = try(domain.key_vault_id, module.keyvaults[domain.key_vault_key].certificates[domain.key_vault_cert_key].versionless_secret_id, null)
-          },
-        domain)
-      ]
-    ) : scm.key => scm
-  }, null)
+        portal = try({
+          for portal in
+          flatten(
+            [
+              for k, domain in val.custom_domains.portal : merge({
+                key          = k
+                key_vault_id = try(domain.key_vault_id, module.keyvaults[domain.key_vault_key].certificates[domain.key_vault_cert_key].versionless_secret_id, null)
+                },
+              domain)
+            ]
+          ) : portal.key => portal
+        }, null)
 
-  apim_custom_domains = merge(
-    local.apim_custom_domains_gateway,
-    local.apim_custom_domains_developer_portal,
-    local.apim_custom_domains_management,
-    local.apim_custom_domains_portal,
-    local.apim_custom_domains_scm
-  )
+        scm = try({
+          for scm in
+          flatten(
+            [
+              for k, domain in val.custom_domains.scm : merge({
+                key          = k
+                key_vault_id = try(domain.key_vault_id, module.keyvaults[domain.key_vault_key].certificates[domain.key_vault_cert_key].versionless_secret_id, null)
+                },
+              domain)
+            ]
+          ) : scm.key => scm
+        }, null)
+
+      }
+    }
+    if try(val.custom_domains, null) != null
+  }
 }
 
 #----------------------------------------------------------
@@ -118,15 +119,16 @@ module "api_management" {
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
+  existing            = try(each.value.existing, false)
   tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
-  sku_name            = each.value.sku_name
-  publisher_name      = each.value.publisher_name
-  publisher_email     = each.value.publisher_email
 
+  sku_name                      = try(each.value.sku_name, null)
+  publisher_name                = try(each.value.publisher_name, null)
+  publisher_email               = try(each.value.publisher_email, null)
   additional_location           = try(each.value.additional_location, [])
   certificate_configuration     = try(each.value.certificate_configuration, [])
   client_certificate_enabled    = try(each.value.client_certificate_enabled, false)
-  custom_domains                = try(local.apim_custom_domains, {})
+  custom_domains                = try(local.apim_custom_domains, null)
   enable_http2                  = try(each.value.enable_http2, false)
   enable_sign_in                = try(each.value.enable_sign_in, false)
   enable_sign_up                = try(each.value.enable_sign_up, false)
@@ -152,8 +154,10 @@ module "api_management_product" {
   source   = "./modules/api_management/product"
   for_each = local.apim.api_management_product
 
-  api_management_name   = can(each.value.api_management_name) ? each.value.api_management_name : try(module.api_management[each.value.api_management_key].name, null)
-  resource_group_name   = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.api_management[each.value.api_management_key].resource_group_name, null)
+  depends_on = [module.api_management]
+
+  api_management_name   = try(each.value.api_management_name, module.api_management[each.value.api_management_key].name, null)
+  resource_group_name   = try(each.value.resource_group_name, module.api_management[each.value.api_management_key].resource_group_name, null)
   approval_required     = each.value.approval_required
   display_name          = each.value.display_name
   product_id            = each.value.product_id
@@ -170,10 +174,15 @@ module "api_management_subscription" {
   source   = "./modules/api_management/subscription"
   for_each = local.apim.api_management_subscription
 
+  depends_on = [
+    module.api_management,
+    module.api_management_product
+  ]
+
   api_management_name = can(each.value.api_management_name) ? each.value.api_management_name : try(module.api_management[each.value.api_management_key].name, null)
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.api_management[each.value.api_management_key].resource_group_name, null)
   display_name        = each.value.display_name
-  product_id          = can(each.value.product_id) ? each.value.product_id : try(module.api_management_product[each.value.product_key].product_id, null)
+  product_id          = can(each.value.product_id) ? each.value.product_id : try(module.api_management_product[each.value.product_key].id, null)
   user_id             = try(each.value.user_id, null)
   api_id              = try(each.value.api_id, null)
   primary_key         = try(each.value.primary_key, null)

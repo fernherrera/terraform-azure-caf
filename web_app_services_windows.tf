@@ -2,22 +2,6 @@
 # Locals declarations
 #----------------------------------------------------------
 locals {
-  # Default windows web app settings
-  windows_web_app_settings_defaults = {
-    https_only = true
-    site_config = {
-      application_stack = {
-        current_stack  = "dotnetcore"
-        dotnet_version = "v6.0"
-      }
-      always_on             = true
-      ftps_state            = "Disabled"
-      http2_enabled         = true
-      managed_pipeline_mode = "Integrated"
-      minimum_tls_version   = "1.2"
-    }
-  }
-
   # Managed identities
   windows_web_app_managed_identities = {
     for managed_identity in
@@ -39,67 +23,55 @@ locals {
     ) : format("%s", managed_identity.sa_key) => managed_identity
   }
 
+  # Default windows web app settings
+  windows_web_app_settings_defaults = {
+    https_only = true
+    site_config = {
+      application_stack = {
+        current_stack  = "dotnet"
+        dotnet_version = "v6.0"
+      }
+      always_on             = true
+      ftps_state            = "Disabled"
+      http2_enabled         = true
+      managed_pipeline_mode = "Integrated"
+      minimum_tls_version   = "1.2"
+    }
+  }
+
   # Default diagnostic settings
   windows_web_app_diagnostics_defaults = {
     name = "operational_logs_and_metrics"
-    log = [
+    enabled_log = [
       {
-        name    = "AppServiceHTTPLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "AppServiceHTTPLogs"
+        enabled  = true
       },
       {
-        name    = "AppServiceConsoleLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "AppServiceConsoleLogs"
+        enabled  = true
       },
       {
-        name    = "AppServiceAppLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "AppServiceAppLogs"
+        enabled  = true
       },
       {
-        name    = "AppServiceAuditLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "AppServiceAuditLogs"
+        enabled  = true
       },
       {
-        name    = "AppServiceIPSecAuditLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "AppServiceIPSecAuditLogs"
+        enabled  = true
       },
       {
-        name    = "AppServicePlatformLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "AppServicePlatformLogs"
+        enabled  = true
       },
     ]
     metric = [
       {
-        name    = "AllMetrics"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "AllMetrics"
+        enabled  = true
       }
     ]
   }
@@ -139,19 +111,22 @@ module "windows_web_apps" {
 # Windows Web App Diagnostic settings
 #--------------------------------------
 module "windows_web_apps_diagnostics" {
-  source   = "./modules/monitor/diagnostic_settings"
-  for_each = local.web.app_services_windows
+  source = "./modules/monitor/diagnostic_settings"
+  for_each = {
+    for key, val in local.web.app_services_windows : key => val
+    if try(val.diagnostic_settings, null) != null
+  }
 
   target_resource_id = module.windows_web_apps[each.key].id
 
-  eventhub_name                  = try(each.value.diagnostic_settings.eventhub_name, null)
-  eventhub_authorization_rule_id = try(each.value.diagnostic_settings.eventhub_authorization_rule_id, null)
+  eventhub_name                  = try(each.value.diagnostic_settings.eventhub_name, module.event_hubs[each.value.diagnostic_settings.eventhub_key].name, null)
+  eventhub_authorization_rule_id = try(each.value.diagnostic_settings.eventhub_authorization_rule_id, module.event_hub_namespace_auth_rules[each.value.diagnostic_settings.eventhub_authorization_rule_key].id, null)
 
-  log_analytics_workspace_id     = try(each.value.diagnostic_settings.log_analytics_workspace_id, null)
+  log_analytics_workspace_id     = try(each.value.diagnostic_settings.log_analytics_workspace_id, module.log_analytics[each.value.diagnostic_settings.log_analytics_workspace_key].id, null)
   log_analytics_destination_type = try(each.value.diagnostic_settings.log_analytics_destination_type, null)
 
   partner_solution_id = try(each.value.diagnostic_settings.partner_solution_id, null)
-  storage_account_id  = try(each.value.diagnostic_settings.storage_account_id, null)
+  storage_account_id  = try(each.value.diagnostic_settings.storage_account_id, module.storage_accounts[each.value.diagnostic_settings.storage_account_key].id, null)
 
   name        = try(each.value.diagnostic_settings.name, local.windows_web_app_diagnostics_defaults.name)
   enabled_log = try(each.value.diagnostic_settings.enabled_log, local.windows_web_app_diagnostics_defaults.enabled_log, [])

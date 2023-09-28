@@ -4,6 +4,7 @@
 locals {
   id                   = element(coalescelist(data.azurerm_api_management.apim_e.*.id, azurerm_api_management.apim.*.id, [""]), 0)
   name                 = element(coalescelist(data.azurerm_api_management.apim_e.*.name, azurerm_api_management.apim.*.name, [""]), 0)
+  resource_group_name  = element(coalescelist(data.azurerm_api_management.apim_e.*.resource_group_name, azurerm_api_management.apim.*.resource_group_name, [""]), 0)
   location             = element(coalescelist(data.azurerm_api_management.apim_e.*.location, azurerm_api_management.apim.*.location, [""]), 0)
   additional_location  = element(coalescelist(data.azurerm_api_management.apim_e.*.additional_location, azurerm_api_management.apim.*.additional_location, [""]), 0)
   gateway_url          = element(coalescelist(data.azurerm_api_management.apim_e.*.gateway_url, azurerm_api_management.apim.*.gateway_url, [""]), 0)

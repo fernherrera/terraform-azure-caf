@@ -47,104 +47,56 @@ locals {
 
   data_factory_diagnostics_defaults = {
     name = "operational_logs_and_metrics"
-    log = [
+    enabled_log = [
       {
-        name    = "ActivityRuns"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "ActivityRuns"
+        enabled  = true
       },
       {
-        name    = "PipelineRuns"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "PipelineRuns"
+        enabled  = true
       },
       {
-        name    = "TriggerRuns"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "TriggerRuns"
+        enabled  = true
       },
       {
-        name    = "SandboxPipelineRuns"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "SandboxPipelineRuns"
+        enabled  = true
       },
       {
-        name    = "SandboxActivityRuns"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "SandboxActivityRuns"
+        enabled  = true
       },
       {
-        name    = "SSISPackageEventMessages"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "SSISPackageEventMessages"
+        enabled  = true
       },
       {
-        name    = "SSISPackageExecutableStatistics"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "SSISPackageExecutableStatistics"
+        enabled  = true
       },
       {
-        name    = "SSISPackageEventMessageContext"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "SSISPackageEventMessageContext"
+        enabled  = true
       },
       {
-        name    = "SSISPackageExecutionComponentPhases"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "SSISPackageExecutionComponentPhases"
+        enabled  = true
       },
       {
-        name    = "SSISPackageExecutionDataStatistics"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "SSISPackageExecutionDataStatistics"
+        enabled  = true
       },
       {
-        name    = "SSISIntegrationRuntimeLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "SSISIntegrationRuntimeLogs"
+        enabled  = true
       },
     ]
     metric = [
       {
-        name    = "AllMetrics"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "AllMetrics"
+        enabled  = true
       }
     ]
   }
@@ -200,19 +152,22 @@ module "data_factory_private_endpoints" {
 # Data Factory Diagnostic settings
 #--------------------------------------
 module "data_factory_diagnostics" {
-  source   = "./modules/monitor/diagnostic_settings"
-  for_each = local.data_factory.data_factory
+  source = "./modules/monitor/diagnostic_settings"
+  for_each = {
+    for key, val in local.data_factory.data_factory : key => val
+    if try(val.diagnostic_settings, null) != null
+  }
 
   target_resource_id = module.data_factory[each.key].id
 
-  eventhub_name                  = try(each.value.diagnostic_settings.eventhub_name, null)
-  eventhub_authorization_rule_id = try(each.value.diagnostic_settings.eventhub_authorization_rule_id, null)
+  eventhub_name                  = try(each.value.diagnostic_settings.eventhub_name, module.event_hubs[each.value.diagnostic_settings.eventhub_key].name, null)
+  eventhub_authorization_rule_id = try(each.value.diagnostic_settings.eventhub_authorization_rule_id, module.event_hub_namespace_auth_rules[each.value.diagnostic_settings.eventhub_authorization_rule_key].id, null)
 
-  log_analytics_workspace_id     = try(each.value.diagnostic_settings.log_analytics_workspace_id, null)
+  log_analytics_workspace_id     = try(each.value.diagnostic_settings.log_analytics_workspace_id, module.log_analytics[each.value.diagnostic_settings.log_analytics_workspace_key].id, null)
   log_analytics_destination_type = try(each.value.diagnostic_settings.log_analytics_destination_type, null)
 
   partner_solution_id = try(each.value.diagnostic_settings.partner_solution_id, null)
-  storage_account_id  = try(each.value.diagnostic_settings.storage_account_id, null)
+  storage_account_id  = try(each.value.diagnostic_settings.storage_account_id, module.storage_accounts[each.value.diagnostic_settings.storage_account_key].id, null)
 
   name        = try(each.value.diagnostic_settings.name, local.data_factory_diagnostics_defaults.name)
   enabled_log = try(each.value.diagnostic_settings.enabled_log, local.data_factory_diagnostics_defaults.enabled_log, [])

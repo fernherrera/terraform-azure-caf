@@ -40,14 +40,14 @@ resource "azurerm_key_vault" "keyvault" {
   }
 
   dynamic "network_acls" {
-    for_each = try(var.network_acls, null) == null ? [] : [1]
+    for_each = try(var.network_acls, null) != null ? [var.network_acls] : []
 
     content {
-      bypass         = var.network_acls.bypass
-      default_action = try(var.network_acls.default_action, "Deny")
-      ip_rules       = try(var.network_acls.ip_rules, null)
-      virtual_network_subnet_ids = try(var.network_acls.subnets, null) == null ? null : [
-        for key, value in var.network_acls.subnets : can(value.subnet_id) ? value.subnet_id : var.vnets[value.vnet_key].subnets[value.subnet_key].id
+      bypass         = network_acls.value.bypass
+      default_action = try(network_acls.value.default_action, "Deny")
+      ip_rules       = try(network_acls.value.ip_rules, null)
+      virtual_network_subnet_ids = try(network_acls.value.subnets, null) == null ? null : [
+        for key, value in network_acls.value.subnets : can(value.subnet_id) ? value.subnet_id : var.vnets[value.vnet_key].subnets[value.subnet_key].id
       ]
     }
   }

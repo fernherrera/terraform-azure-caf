@@ -28,15 +28,15 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
     for_each = try(var.enabled_log, [])
 
     content {
-      category       = enabled_log.category
-      category_group = try(enabled_log.category_group, null)
+      category       = enabled_log.value.category
+      category_group = try(enabled_log.value.category_group, null)
 
       dynamic "retention_policy" {
-        for_each = try(enabled_log.retention_policy, null) != null ? [1] : []
+        for_each = try(enabled_log.value.retention_policy, null) != null ? [1] : []
 
         content {
-          enabled = enabled_log.retention_policy.enabled
-          days    = try(enabled_log.retention_policy.days, 0)
+          enabled = enabled_log.value.retention_policy.enabled
+          days    = try(enabled_log.value.retention_policy.days, 0)
         }
       }
     }
@@ -46,15 +46,15 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
     for_each = try(var.log, [])
 
     content {
-      category = log.category
-      enabled  = try(log.enabled, true)
+      category = log.value.category
+      enabled  = try(log.value.enabled, true)
 
       dynamic "retention_policy" {
-        for_each = try(log.retention_policy, null) != null ? [1] : []
+        for_each = try(log.value.retention_policy, null) != null ? [1] : []
 
         content {
-          enabled = log.retention_policy.enabled
-          days    = try(log.retention_policy.days, 0)
+          enabled = log.value.retention_policy.enabled
+          days    = try(log.value.retention_policy.days, 0)
         }
       }
     }
@@ -64,15 +64,15 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
     for_each = try(var.metric, [])
 
     content {
-      category = metric.category
-      enabled  = try(metric.enabled, true)
+      category = metric.value.category
+      enabled  = try(metric.value.enabled, true)
 
       dynamic "retention_policy" {
-        for_each = try(metric.retention_policy, null) != null ? [1] : []
+        for_each = try(metric.value.retention_policy, null) != null ? [1] : []
 
         content {
-          enabled = metric.retention_policy.enabled
-          days    = try(metric.retention_policy.days, 0)
+          enabled = metric.value.retention_policy.enabled
+          days    = try(metric.value.retention_policy.days, 0)
         }
       }
     }

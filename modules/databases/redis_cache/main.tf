@@ -207,10 +207,6 @@ resource "azurerm_monitor_diagnostic_setting" "extaudit" {
 
   metric {
     category = "AllMetrics"
-
-    retention_policy {
-      enabled = false
-    }
   }
 
   lifecycle {

@@ -3,26 +3,17 @@
 #----------------------------------------------------------
 locals {
   log_analytics_diagnostics_defaults = {
-    name        = "operational_logs_and_metrics"
-    enabled_log = []
-    log = [
+    name = "operational_logs_and_metrics"
+    enabled_log = [
       {
-        name    = "Audit"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "Audit"
+        enabled  = true
       },
     ]
     metric = [
       {
-        name    = "AllMetrics"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "AllMetrics"
+        enabled  = true
       }
     ]
   }
@@ -38,6 +29,7 @@ module "log_analytics" {
   name                = each.value.name
   resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
+  existing            = try(each.value.existing, false)
   tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
   diagnostic_settings                = try(each.value.diagnostic_settings, {})
@@ -54,19 +46,22 @@ module "log_analytics" {
 # Log Analytics Workspace Diagnostic Setting
 #----------------------------------------------------------
 module "log_analytics_diagnostics" {
-  source   = "./modules/monitor/diagnostic_settings"
-  for_each = local.shared_services.log_analytics
+  source = "./modules/monitor/diagnostic_settings"
+  for_each = {
+    for key, val in local.shared_services.log_analytics : key => val
+    if try(val.diagnostic_settings, null) != null
+  }
 
   target_resource_id = module.log_analytics[each.key].id
 
-  eventhub_name                  = try(each.value.diagnostic_settings.eventhub_name, null)
-  eventhub_authorization_rule_id = try(each.value.diagnostic_settings.eventhub_authorization_rule_id, null)
+  eventhub_name                  = try(each.value.diagnostic_settings.eventhub_name, module.event_hubs[each.value.diagnostic_settings.eventhub_key].name, null)
+  eventhub_authorization_rule_id = try(each.value.diagnostic_settings.eventhub_authorization_rule_id, module.event_hub_namespace_auth_rules[each.value.diagnostic_settings.eventhub_authorization_rule_key].id, null)
 
-  log_analytics_workspace_id     = try(each.value.diagnostic_settings.log_analytics_workspace_id, null)
+  log_analytics_workspace_id     = try(each.value.diagnostic_settings.log_analytics_workspace_id, module.log_analytics[each.value.diagnostic_settings.log_analytics_workspace_key].id, null)
   log_analytics_destination_type = try(each.value.diagnostic_settings.log_analytics_destination_type, null)
 
   partner_solution_id = try(each.value.diagnostic_settings.partner_solution_id, null)
-  storage_account_id  = try(each.value.diagnostic_settings.storage_account_id, null)
+  storage_account_id  = try(each.value.diagnostic_settings.storage_account_id, module.storage_accounts[each.value.diagnostic_settings.storage_account_key].id, null)
 
   name        = try(each.value.diagnostic_settings.name, local.log_analytics_diagnostics_defaults.name)
   enabled_log = try(each.value.diagnostic_settings.enabled_log, local.log_analytics_diagnostics_defaults.enabled_log, [])

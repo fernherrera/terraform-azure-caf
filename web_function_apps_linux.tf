@@ -2,17 +2,6 @@
 # Locals declarations
 #----------------------------------------------------------
 locals {
-  # Default linux function app settings
-  linux_function_app_settings_defaults = {
-    site_config = {
-      always_on = false
-      application_stack = {
-        dotnet_version = "v6.0"
-      }
-      use_32_bit_worker = false
-    }
-  }
-
   # Managed identities
   linux_function_app_managed_identities = {
     for managed_identity in
@@ -34,26 +23,29 @@ locals {
     ) : format("%s", managed_identity.sa_key) => managed_identity
   }
 
+  # Default linux function app settings
+  linux_function_app_settings_defaults = {
+    site_config = {
+      always_on = false
+      application_stack = {
+        dotnet_version = "v6.0"
+      }
+      use_32_bit_worker = false
+    }
+  }
+
   linux_function_app_diagnostics_defaults = {
     name = "operational_logs_and_metrics"
-    log = [
+    enabled_log = [
       {
-        name    = "FunctionAppLogs"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "FunctionAppLogs"
+        enabled  = true
       },
     ]
     metric = [
       {
-        name    = "AllMetrics"
-        enabled = true
-        retention_policy = {
-          enabled = true
-          days    = 7
-        }
+        category = "AllMetrics"
+        enabled  = true
       }
     ]
   }
@@ -99,19 +91,22 @@ module "linux_function_apps" {
 # Linux App Function Diagnostic settings
 #--------------------------------------
 module "linux_function_apps_diagnostics" {
-  source   = "./modules/monitor/diagnostic_settings"
-  for_each = local.web.function_apps_linux
+  source = "./modules/monitor/diagnostic_settings"
+  for_each = {
+    for key, val in local.web.function_apps_linux : key => val
+    if try(val.diagnostic_settings, null) != null
+  }
 
   target_resource_id = module.linux_function_apps[each.key].id
 
-  eventhub_name                  = try(each.value.diagnostic_settings.eventhub_name, null)
-  eventhub_authorization_rule_id = try(each.value.diagnostic_settings.eventhub_authorization_rule_id, null)
+  eventhub_name                  = try(each.value.diagnostic_settings.eventhub_name, module.event_hubs[each.value.diagnostic_settings.eventhub_key].name, null)
+  eventhub_authorization_rule_id = try(each.value.diagnostic_settings.eventhub_authorization_rule_id, module.event_hub_namespace_auth_rules[each.value.diagnostic_settings.eventhub_authorization_rule_key].id, null)
 
-  log_analytics_workspace_id     = try(each.value.diagnostic_settings.log_analytics_workspace_id, null)
+  log_analytics_workspace_id     = try(each.value.diagnostic_settings.log_analytics_workspace_id, module.log_analytics[each.value.diagnostic_settings.log_analytics_workspace_key].id, null)
   log_analytics_destination_type = try(each.value.diagnostic_settings.log_analytics_destination_type, null)
 
   partner_solution_id = try(each.value.diagnostic_settings.partner_solution_id, null)
-  storage_account_id  = try(each.value.diagnostic_settings.storage_account_id, null)
+  storage_account_id  = try(each.value.diagnostic_settings.storage_account_id, module.storage_accounts[each.value.diagnostic_settings.storage_account_key].id, null)
 
   name        = try(each.value.diagnostic_settings.name, local.linux_function_app_diagnostics_defaults.name)
   enabled_log = try(each.value.diagnostic_settings.enabled_log, local.linux_function_app_diagnostics_defaults.enabled_log, [])
