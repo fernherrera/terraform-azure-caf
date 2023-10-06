@@ -35,7 +35,7 @@ locals {
   }
 
   apim_custom_domains = {
-    for key, val in var.apim : key => {
+    for key, val in local.apim.api_management : key => {
       custom_domains = {
 
         gateway = try({
@@ -117,7 +117,7 @@ module "api_management" {
   for_each = local.apim.api_management
 
   name                = each.value.name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  resource_group_name = try(each.value.resource_group_name, module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
   existing            = try(each.value.existing, false)
   tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
@@ -128,7 +128,7 @@ module "api_management" {
   additional_location           = try(each.value.additional_location, [])
   certificate_configuration     = try(each.value.certificate_configuration, [])
   client_certificate_enabled    = try(each.value.client_certificate_enabled, false)
-  custom_domains                = try(local.apim_custom_domains, null)
+  custom_domains                = try(local.apim_custom_domains[each.key], {})
   enable_http2                  = try(each.value.enable_http2, false)
   enable_sign_in                = try(each.value.enable_sign_in, false)
   enable_sign_up                = try(each.value.enable_sign_up, false)
@@ -158,12 +158,14 @@ module "api_management_product" {
 
   api_management_name   = try(each.value.api_management_name, module.api_management[each.value.api_management_key].name, null)
   resource_group_name   = try(each.value.resource_group_name, module.api_management[each.value.api_management_key].resource_group_name, null)
-  approval_required     = each.value.approval_required
+  approval_required     = try(each.value.approval_required, true)
+  description           = try(each.value.description, null)
   display_name          = each.value.display_name
+  policy                = try(each.value.policy, null)
   product_id            = each.value.product_id
   published             = each.value.published
   subscription_required = each.value.subscription_required
-  subscriptions_limit   = each.value.subscriptions_limit
+  subscriptions_limit   = try(each.value.subscriptions_limit, 1)
 }
 
 

@@ -43,6 +43,11 @@ variable "description" {
   default     = null
 }
 
+variable "policy" {
+  description = "(Optional) Product policy"
+  default     = null
+}
+
 variable "subscriptions_limit" {
   description = "(Optional) The number of subscriptions a user can have to this Product at the same time."
   type        = string
