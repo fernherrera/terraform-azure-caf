@@ -114,7 +114,7 @@ module "data_factory" {
   ]
 
   name                = each.value.name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  resource_group_name = try(each.value.resource_group_name, module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
   tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
@@ -183,7 +183,7 @@ module "data_factory_pipeline" {
   for_each = local.data_factory.data_factory_pipeline
 
   name                = each.value.name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  resource_group_name = try(each.value.resource_group_name, module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
   tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
@@ -199,7 +199,7 @@ module "data_factory_trigger_schedule" {
   for_each = local.data_factory.data_factory_trigger_schedule
 
   name                = each.value.name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  resource_group_name = try(each.value.resource_group_name, module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
   tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
@@ -216,7 +216,7 @@ module "data_factory_integration_runtime_self_hosted" {
   for_each = local.data_factory.data_factory_integration_runtime_self_hosted
 
   name                = each.value.name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  resource_group_name = try(each.value.resource_group_name, module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
   tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
@@ -231,7 +231,7 @@ module "data_factory_integration_runtime_azure_ssis" {
   for_each = local.data_factory.data_factory_integration_runtime_azure_ssis
 
   name                = each.value.name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  resource_group_name = try(each.value.resource_group_name, module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
   tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 

@@ -98,7 +98,7 @@ module "event_hub_namespaces" {
   for_each = local.messaging.event_hub_namespaces
 
   name                = each.value.name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  resource_group_name = try(each.value.resource_group_name, module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
   existing            = try(each.value.existing, false)
   tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
@@ -131,7 +131,7 @@ module "event_hub_namespace_auth_rules" {
 
   name                = each.value.name
   namespace_name      = module.event_hub_namespaces[each.value.event_hub_namespace_key].name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  resource_group_name = try(each.value.resource_group_name, module.resource_groups[each.value.resource_group_key].name, null)
   listen              = try(each.value.listen, false)
   send                = try(each.value.send, false)
   manage              = try(each.value.manage, false)
@@ -199,7 +199,7 @@ module "event_hubs" {
 
   name                = each.value.name
   namespace_name      = module.event_hub_namespaces[each.value.event_hub_namespace_key].name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  resource_group_name = try(each.value.resource_group_name, module.resource_groups[each.value.resource_group_key].name, null)
   partition_count     = each.value.partition_count
   message_retention   = each.value.message_retention
   capture_description = try(each.value.capture_description, {})
@@ -223,7 +223,7 @@ module "event_hub_auth_rules" {
   name                = each.value.name
   namespace_name      = module.event_hub_namespaces[each.value.event_hub_namespace_key].name
   eventhub_name       = module.event_hubs[each.value.event_hub_key].name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  resource_group_name = try(each.value.resource_group_name, module.resource_groups[each.value.resource_group_key].name, null)
   listen              = try(each.value.listen, false)
   send                = try(each.value.send, false)
   manage              = try(each.value.manage, false)
@@ -244,6 +244,6 @@ module "event_hub_consumer_groups" {
   name                = each.value.name
   namespace_name      = module.event_hub_namespaces[each.value.event_hub_namespace_key].name
   eventhub_name       = module.event_hubs[each.value.event_hub_name_key].name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  resource_group_name = try(each.value.resource_group_name, module.resource_groups[each.value.resource_group_key].name, null)
   user_metadata       = try(each.value.user_metadata, null)
 }
