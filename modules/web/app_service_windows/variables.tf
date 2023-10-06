@@ -17,13 +17,28 @@ variable "service_plan_id" {
   description = "(Required) The ID of the Service Plan that this Windows App Service will be created in."
 }
 
-variable "application_insight" {
-  default = null
+variable "site_config" {
+  description = "(Required) A site_config block."
 }
 
 variable "app_settings" {
   description = "(Optional) A map of key-value pairs of App Settings."
   type        = map(string)
+  default     = {}
+}
+
+variable "auth_settings" {
+  description = "(Optional) An auth_settings block."
+  default     = {}
+}
+
+variable "auth_settings_v2" {
+  description = "(Optional) An auth_settings_v2 block."
+  default     = {}
+}
+
+variable "backup" {
+  description = "(Optional) A backup block."
   default     = {}
 }
 
@@ -45,8 +60,20 @@ variable "client_certificate_mode" {
   default     = "Optional"
 }
 
+variable "client_certificate_exclusion_paths" {
+  description = "(Optional) Paths to exclude when using client certificates, separated by ;"
+  type        = string
+  default     = null
+}
+
 variable "connection_strings" {
   description = "(Optional) One or more connection_string blocks"
+  default     = {}
+}
+
+variable "custom_hostname_bindings" {
+  description = "(Optional) One or more custom_hostname_bindings blocks."
+  default     = {}
 }
 
 variable "enabled" {
@@ -68,14 +95,22 @@ variable "identity" {
 
 variable "key_vault_reference_identity_id" {
   description = "(Optional) The User Assigned Identity ID used for accessing KeyVault secrets. The identity must be assigned to the application in the identity block."
+  default     = null
 }
 
-variable "settings" {
-  description = "Configuration object - Windows Web App"
+variable "logs" {
+  description = "(Optional) A logs block"
+  default     = null
 }
 
-variable "storage_accounts" {
-  description = "(Optional)"
+variable "sticky_settings" {
+  description = "(Optional) A sticky_settings block."
+  default     = null
+}
+
+variable "storage_account" {
+  description = "(Optional) One or more storage_account blocks."
+  default     = {}
 }
 
 variable "tags" {
@@ -84,35 +119,39 @@ variable "tags" {
   default     = {}
 }
 
-variable "virtual_network_integration_enabled" {
-  description = "Enable VNET integration. `virtual_network_subnet_id` is mandatory if enabled"
-  type        = bool
-  default     = false
-}
-
 variable "virtual_network_subnet_id" {
   description = "(Optional) The subnet id which will be used by this Web App for regional virtual network integration."
   default     = null
 }
 
 variable "zip_deploy_file" {
-  description = "(Optional) The local path and filename of the Zip packaged application to deploy to this Windows Web App."
+  description = "(Optional) The local path and filename of the Zip packaged application to deploy to this Windows Web App. Using this value requires either WEBSITE_RUN_FROM_PACKAGE=1 or SCM_DO_BUILD_DURING_DEPLOYMENT=true to be set on the App in app_settings."
   type        = string
   default     = null
 }
 
+
+## TBD
+variable "application_insight" {
+  default = null
+}
+
+## TBD
 variable "private_dns" {
   default = {}
 }
 
+## TBD
 variable "private_endpoints" {
   default = {}
 }
 
+## TO BE REMOVED
 variable "resource_groups" {
   default = {}
 }
 
+## TO BE REMOVED
 variable "virtual_subnets" {
   default = {}
 }

@@ -17,9 +17,28 @@ variable "service_plan_id" {
   description = "(Required) The ID of the App Service Plan within which to create this Function App."
 }
 
+variable "site_config" {
+  description = "(Required) A site_config block."
+}
+
 variable "app_settings" {
   description = "(Optional) A map of key-value pairs of App Settings."
   type        = map(string)
+  default     = {}
+}
+
+variable "auth_settings" {
+  description = "(Optional) An auth_settings block."
+  default     = {}
+}
+
+variable "auth_settings_v2" {
+  description = "(Optional) An auth_settings_v2 block."
+  default     = {}
+}
+
+variable "backup" {
+  description = "(Optional) A backup block."
   default     = {}
 }
 
@@ -83,6 +102,16 @@ variable "key_vault_reference_identity_id" {
   default     = null
 }
 
+variable "public_network_access_enabled" {
+  description = "(Optional) Should public network access be enabled for the Function App. Defaults to true."
+  default     = true
+}
+
+variable "sticky_settings" {
+  description = "(Optional) A sticky_settings block."
+  default     = null
+}
+
 variable "storage_account" {
   description = "(Optional) One or more storage_account blocks."
   default     = {}
@@ -108,12 +137,6 @@ variable "storage_key_vault_secret_id" {
   default     = null
 }
 
-variable "virtual_network_integration_enabled" {
-  description = "Enable VNET integration. `virtual_network_subnet_id` is mandatory if enabled"
-  type        = bool
-  default     = false
-}
-
 variable "tags" {
   description = "(Optional) A mapping of tags which should be assigned to the Windows Web App."
   type        = map(string)
@@ -125,14 +148,21 @@ variable "virtual_network_subnet_id" {
   default     = null
 }
 
+variable "zip_deploy_file" {
+  description = " (Optional) The local path and filename of the Zip packaged application to deploy to this Linux Function App."
+  type        = string
+  default     = null
+}
+
+
 variable "application_insight" {
   description = "(Optional) The application insights instance used to log to."
   default     = null
 }
 
-variable "settings" {
-  description = "Configuration object - Linux Function App"
-}
+# variable "settings" {
+#   description = "Configuration object - Linux Function App"
+# }
 
 variable "storage_accounts" {
   default = {}

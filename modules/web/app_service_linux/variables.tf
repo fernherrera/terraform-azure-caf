@@ -17,13 +17,28 @@ variable "service_plan_id" {
   description = "(Required) The ID of the Service Plan that this Windows App Service will be created in."
 }
 
-variable "settings" {
-  description = "(Required) Configuration object - Linux Web App configs containing: auth_settings, backup, logs, site_config, sticky_settings, and storage_account."
+variable "site_config" {
+  description = "(Required) A site_config block."
 }
 
 variable "app_settings" {
   description = "(Optional) A map of key-value pairs of App Settings."
   type        = map(string)
+  default     = {}
+}
+
+variable "auth_settings" {
+  description = "(Optional) An auth_settings block."
+  default     = {}
+}
+
+variable "auth_settings_v2" {
+  description = "(Optional) An auth_settings_v2 block."
+  default     = {}
+}
+
+variable "backup" {
+  description = "(Optional) A backup block."
   default     = {}
 }
 
@@ -52,6 +67,12 @@ variable "client_certificate_exclusion_paths" {
 
 variable "connection_strings" {
   description = "(Optional) One or more connection_string blocks."
+  default     = {}
+}
+
+variable "custom_hostname_bindings" {
+  description = "(Optional) One or more custom_hostname_bindings blocks."
+  default     = {}
 }
 
 variable "enabled" {
@@ -75,8 +96,22 @@ variable "key_vault_reference_identity_id" {
   description = "(Optional) The User Assigned Identity ID used for accessing KeyVault secrets. The identity must be assigned to the application in the identity block."
 }
 
-variable "storage_accounts" {
-  description = "(Optional) A map of storage account resources."
+variable "logs" {
+  description = "(Optional) A logs block"
+  default     = null
+}
+
+variable "sticky_settings" {
+  description = "(Optional) A sticky_settings block."
+  default     = null
+}
+
+variable "source_control" {
+  default = {}
+}
+
+variable "storage_account" {
+  description = "(Optional) One or more storage_account blocks."
   default     = {}
 }
 
@@ -84,12 +119,6 @@ variable "tags" {
   description = "(Optional) A mapping of tags which should be assigned to the Linux Web App."
   type        = map(string)
   default     = {}
-}
-
-variable "virtual_network_integration_enabled" {
-  description = "Enable VNET integration. `virtual_network_subnet_id` is mandatory if enabled"
-  type        = bool
-  default     = false
 }
 
 variable "virtual_network_subnet_id" {
@@ -106,4 +135,9 @@ variable "zip_deploy_file" {
 variable "application_insight" {
   description = "(Optional) An Application Insights block"
   default     = null
+}
+
+variable "storage_accounts" {
+  description = "(Optional) A map of storage account resources."
+  default     = {}
 }

@@ -23,8 +23,24 @@ locals {
     ) : format("%s", managed_identity.sa_key) => managed_identity
   }
 
+  # Storage account
+  linux_web_app_storage_account = {
+    for key, app in local.web.app_services_linux : key => {
+      storage_account = try({
+        for storage_account in
+        flatten([
+          for sa_k, sa in app.storage_account : merge({
+            key          = sa_k
+            access_key   = try(sa.access_key, module.storage_accounts[sa.storage_account_key].primary_access_key, null)
+            account_name = try(sa.account_name, module.storage_accounts[sa.storage_account_key].name, null)
+          }, sa)
+        ]) : storage_account.key => storage_account
+      }, {})
+    } if try(app.storage_account, null) != null
+  }
+
   # Default linux web app settings
-  linux_web_app_settings_defaults = {
+  linux_web_app_site_config_defaults = {
     site_config = {
       application_stack = {
         php_version = "8.1"
@@ -79,27 +95,31 @@ module "linux_web_apps" {
   for_each = local.web.app_services_linux
 
   name                = each.value.name
-  resource_group_name = can(each.value.resource_group_name) ? each.value.resource_group_name : try(module.resource_groups[each.value.resource_group_key].name, null)
+  resource_group_name = try(each.value.resource_group_name, module.resource_groups[each.value.resource_group_key].name, null)
   location            = try(each.value.location, var.global_settings.regions[var.global_settings.default_region])
   tags                = merge(try(each.value.tags, {}), local.global_settings.tags)
 
-  application_insight                 = try(each.value.application_insight_key, null) == null ? null : module.application_insights[each.value.application_insight_key]
-  app_settings                        = try(each.value.app_settings, null)
-  client_affinity_enabled             = try(each.value.client_affinity_enabled, null)
-  client_certificate_enabled          = try(each.value.client_certificate_enabled, null)
-  client_certificate_mode             = try(each.value.client_certificate_mode, null)
-  client_certificate_exclusion_paths  = try(each.value.client_certificate_exclusion_paths, null)
-  connection_strings                  = try(each.value.connection_strings, {})
-  enabled                             = try(each.value.enabled, null)
-  https_only                          = try(each.value.https_only, null)
-  identity                            = try(local.linux_web_app_managed_identities[each.key], null)
-  key_vault_reference_identity_id     = try(each.value.key_vault_reference_identity_id, null)
-  service_plan_id                     = can(each.value.app_service_plan_id) ? each.value.app_service_plan_id : module.app_service_plans[each.value.app_service_plan_key].id
-  settings                            = merge(try(local.linux_web_app_settings_defaults, {}), try(each.value.settings, {}))
-  storage_accounts                    = try(module.storage_accounts, null)
-  zip_deploy_file                     = try(each.value.zip_deploy_file, null)
-  virtual_network_integration_enabled = try(each.value.vnet_integration_enabled, false)
-  virtual_network_subnet_id           = can(each.value.vnet_integration_enabled) && can(each.value.virtual_network_subnet_id) || can(each.value.vnet_key) == false ? try(each.value.subnet_id, null) : module.virtual_subnets[each.value.vnet_key].subnets[each.value.subnet_key].id
+  application_insight                = try(each.value.application_insight_key, null) == null ? null : module.application_insights[each.value.application_insight_key]
+  app_settings                       = try(each.value.app_settings, null)
+  auth_settings                      = try(each.value.auth_settings, null)
+  auth_settings_v2                   = try(each.value.auth_settings_v2, null)
+  backup                             = try(each.value.backup, null)
+  client_affinity_enabled            = try(each.value.client_affinity_enabled, null)
+  client_certificate_enabled         = try(each.value.client_certificate_enabled, null)
+  client_certificate_mode            = try(each.value.client_certificate_mode, null)
+  client_certificate_exclusion_paths = try(each.value.client_certificate_exclusion_paths, null)
+  connection_strings                 = try(each.value.connection_strings, {})
+  custom_hostname_bindings           = try(each.value.custom_hostname_bindings, {})
+  enabled                            = try(each.value.enabled, null)
+  https_only                         = try(each.value.https_only, null)
+  identity                           = try(local.linux_web_app_managed_identities[each.key], null)
+  key_vault_reference_identity_id    = try(each.value.key_vault_reference_identity_id, null)
+  logs                               = try(each.value.logs, null)
+  service_plan_id                    = can(each.value.app_service_plan_id) ? each.value.app_service_plan_id : module.app_service_plans[each.value.app_service_plan_key].id
+  site_config                        = merge(try(local.linux_web_app_site_config_defaults, {}), try(each.value.site_config, {}))
+  storage_account                    = try(local.linux_web_app_storage_account[each.key], {})
+  virtual_network_subnet_id          = can(each.value.vnet_integration_enabled) && can(each.value.virtual_network_subnet_id) || can(each.value.vnet_key) == false ? try(each.value.subnet_id, null) : module.virtual_subnets[each.value.vnet_key].subnets[each.value.subnet_key].id
+  zip_deploy_file                    = try(each.value.zip_deploy_file, null)
 }
 
 #--------------------------------------
